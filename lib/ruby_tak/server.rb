@@ -53,12 +53,7 @@ module RubyTAK
     end
 
     def handle_data(client, data)
-      puts
-      puts data
-      puts
-
-      parsed_data = Ox.parse(data)
-      parsed_data = parsed_data.root if parsed_data.respond_to?(:root)
+      parsed_data = parse_data(data)
 
       logger.info("RECV: #{client.inspect} -> #{parsed_data.inspect}")
 
@@ -75,6 +70,8 @@ module RubyTAK
     end
 
     def handle_auth(_client, _auth)
+      # TODO: Implement username/password authentication
+
       logger.warn("AUTH: NotImplemented")
     end
 
@@ -94,6 +91,12 @@ module RubyTAK
       else
         broadcast(message, client)
       end
+    end
+
+    def parse_data(data)
+      parsed_data = MessageParser.parse(data)
+      parsed_data = parsed_data.root if parsed_data.respond_to?(:root)
+      parsed_data
     end
 
     def broadcast(message, source_client)

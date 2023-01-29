@@ -18,13 +18,16 @@ module RubyTAK
       @callsign = event.contact.attributes[:callsign]
       @group = event.group.attributes[:name]
       @uid = event.attributes[:uid]
-      puts
-      puts "Identifying #{remote_addr} as #{@callsign} in #{@group} with UID #{@uid}"
-      puts
     end
 
     def inspect
-      "#{self.class.name}(remote_addr=#{@remote_addr.inspect}, uid=#{@uid.inspect}, callsign=#{@callsign.inspect}, group=#{@group.inspect})"
+      attrs = {
+        remote_addr: @remote_addr,
+        uid: @uid,
+        callsign: @callsign,
+        group: @group
+      }
+      "#{self.class.name}(#{attrs.map { |k, v| "#{k}=#{v.inspect}" }.join(", ")})"
     end
   end
 end
