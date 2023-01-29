@@ -1,0 +1,33 @@
+---
+require:
+  - rubocop-performance
+  - rubocop-rake
+  - rubocop-minitest
+  - rubocop-thread_safety
+
+AllCops:
+  NewCops: enable
+
+Style/Documentation:
+  Enabled: false
+
+Style/DocumentationMethod:
+  Enabled: false
+
+Style/StringLiterals:
+  Enabled: true
+  EnforcedStyle: double_quotes
+
+Style/StringLiteralsInInterpolation:
+  Enabled: true
+  EnforcedStyle: double_quotes
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+
+Naming/FileName:
+  Exclude:
+    - lib/ruby-tak.rb
