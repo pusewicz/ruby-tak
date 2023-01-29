@@ -28,6 +28,8 @@ GEM
       ruby-progressbar
     nokogiri (1.14.0-arm64-darwin)
       racc (~> 1.4)
+    nokogiri (1.14.0-x86_64-linux)
+      racc (~> 1.4)
     ox (2.14.13)
     parallel (1.22.1)
     parser (3.2.0.0)
@@ -88,6 +90,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-22
+  x86_64-linux
 
 DEPENDENCIES
   debug (~> 1.7)
