@@ -4,6 +4,7 @@ require "bundler/setup"
 require "zeitwerk"
 loader = Zeitwerk::Loader.for_gem
 loader.inflector.inflect("ruby_tak" => "RubyTAK")
+loader.inflector.inflect("cli" => "CLI")
 loader.setup
 
 require "ox"
