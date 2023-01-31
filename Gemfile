@@ -37,3 +37,5 @@ end
 gem "commander", "~> 4.6"
 
 gem "certificate_authority", "~> 1.1"
+
+gem "xdg", "~> 7.0"
