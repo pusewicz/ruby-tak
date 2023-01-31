@@ -25,6 +25,7 @@ group :development do
   # Rake tasks
   gem "rake", "~> 13.0", require: false
 
+  gem "debug", "~> 1.7"
   gem "minitest-reporters", "~> 1.5"
 end
 
@@ -33,4 +34,8 @@ group :test do
   gem "minitest", "~> 5.17"
 end
 
-gem "debug", "~> 1.7"
+gem "commander", "~> 4.6"
+
+gem "certificate_authority", "~> 1.1"
+
+gem "xdg", "~> 7.0"
