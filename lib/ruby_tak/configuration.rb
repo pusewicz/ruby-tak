@@ -1,0 +1,51 @@
+# frozen_string_literal: true
+
+require "xdg"
+
+module RubyTAK
+  class Configuration
+    class ArgumentError < ::ArgumentError; end
+
+    attr_reader :cot_ssl_port
+    attr_accessor :ca_crt, :ca_key
+
+    def initialize
+      @ca_crt = "#{subdirectory}-ca.crt"
+      @ca_key = "#{subdirectory}-ca.key"
+      @cot_ssl_port = 8089
+    end
+
+    def ca_crt_path
+      certs_dir.join(ca_crt)
+    end
+
+    def ca_key_path
+      certs_dir.join(ca_key)
+    end
+
+    def subdirectory
+      "ruby_tak"
+    end
+
+    def cot_ssl_port=(value)
+      port = Integer(value)
+      raise ArgumentError, "cot_ssl_port must be between 1 and 65535" unless (1..65_535).cover?(port)
+
+      @cot_ssl_port = port
+    end
+
+    private
+
+    def config_home
+      @config_home ||= Pathname.new(xdg.config_home).join(subdirectory).tap(&:mkpath)
+    end
+
+    def certs_dir
+      @certs_dir ||= config_home.join("certs").tap(&:mkpath)
+    end
+
+    def xdg
+      @xdg ||= XDG::Environment.new
+    end
+  end
+end

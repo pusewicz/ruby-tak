@@ -10,4 +10,18 @@ require "ox"
 
 module RubyTAK
   class Error < StandardError; end
+
+  def configuration
+    @configuration ||= Configuration.new
+  end
+  module_function :configuration
+
+  def configure(path = nil)
+    if path
+      load(path)
+    else
+      yield(configuration)
+    end
+  end
+  module_function :configure
 end
