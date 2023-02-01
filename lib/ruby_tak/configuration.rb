@@ -7,11 +7,14 @@ module RubyTAK
     class ArgumentError < ::ArgumentError; end
 
     attr_reader :cot_ssl_port
-    attr_accessor :ca_crt, :ca_key
+    attr_accessor :ca_crt, :ca_key, :server_crt, :server_key, :server_p12
 
     def initialize
       @ca_crt = "#{subdirectory}-ca.crt"
       @ca_key = "#{subdirectory}-ca.key"
+      @server_crt = "#{subdirectory}-server.crt"
+      @server_key = "#{subdirectory}-server.key"
+      @server_p12 = "#{subdirectory}-server.p12"
       @cot_ssl_port = 8089
     end
 
@@ -21,6 +24,18 @@ module RubyTAK
 
     def ca_key_path
       certs_dir.join(ca_key)
+    end
+
+    def server_crt_path
+      certs_dir.join(server_crt)
+    end
+
+    def server_key_path
+      certs_dir.join(server_key)
+    end
+
+    def server_p12_path
+      certs_dir.join(server_p12)
     end
 
     def subdirectory

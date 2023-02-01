@@ -31,6 +31,34 @@ class ConfigurationTest < Minitest::Test
     assert_path_equal("certs/ruby_tak-ca.crt", configuration.ca_crt_path)
   end
 
+  def test_server_crt_default
+    assert_equal "ruby_tak-server.crt", configuration.server_crt
+  end
+
+  def test_server_crt=
+    configuration.server_crt = "server.crt"
+
+    assert_equal "server.crt", configuration.server_crt
+  end
+
+  def test_server_key_default
+    assert_equal "ruby_tak-server.key", configuration.server_key
+  end
+
+  def test_server_key=
+    configuration.server_key = "server.key"
+
+    assert_equal "server.key", configuration.server_key
+  end
+
+  def test_server_crt_path
+    assert_path_equal("certs/ruby_tak-server.crt", configuration.server_crt_path)
+  end
+
+  def test_server_key_path
+    assert_path_equal("certs/ruby_tak-server.key", configuration.server_key_path)
+  end
+
   def test_cot_ssl_port_default
     assert_equal 8089, configuration.cot_ssl_port
   end
