@@ -81,8 +81,8 @@ module RubyTAK
       client.user = message if message.ident?
 
       if (dest_uids = message.marti_dest_uids)
-        dest_uids.each do |_uid|
-          dest_client = @clients.find { _1.uid == _uid }
+        dest_uids.each do |uid|
+          dest_client = @clients.find { _1.uid == uid }
           next unless dest_client
 
           logger.info("SEND: MARTI: #{dest_client.inspect} <- #{message.inspect} FROM #{client.inspect}")
