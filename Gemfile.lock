@@ -6,7 +6,6 @@ GEM
     backport (1.2.0)
     benchmark (0.2.1)
     builder (3.2.4)
-    certificate_authority (1.1.0)
     commander (4.6.0)
       highline (~> 2.0.0)
     debug (1.7.1)
@@ -30,11 +29,11 @@ GEM
       builder
       minitest (>= 5.0)
       ruby-progressbar
-    nokogiri (1.14.0-arm64-darwin)
+    nokogiri (1.14.1-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.14.0-x86_64-linux)
+    nokogiri (1.14.1-x86_64-linux)
       racc (~> 1.4)
-    ox (2.14.13)
+    ox (2.14.14)
     parallel (1.22.1)
     parser (3.2.0.0)
       ast (~> 2.4.1)
@@ -47,7 +46,7 @@ GEM
     reverse_markdown (2.1.1)
       nokogiri
     rexml (3.2.5)
-    rubocop (1.44.0)
+    rubocop (1.44.1)
       json (~> 2.3)
       parallel (~> 1.10)
       parser (>= 3.2.0.0)
@@ -69,6 +68,7 @@ GEM
     rubocop-thread_safety (0.4.4)
       rubocop (>= 0.53.0)
     ruby-progressbar (1.11.0)
+    rubyzip (2.3.2)
     solargraph (0.48.0)
       backport (~> 1.2)
       benchmark
@@ -98,7 +98,6 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  certificate_authority (~> 1.1)
   commander (~> 4.6)
   debug (~> 1.7)
   minitest (~> 5.17)
@@ -110,6 +109,7 @@ DEPENDENCIES
   rubocop-performance (~> 1.15.2)
   rubocop-rake (~> 0.6.0)
   rubocop-thread_safety (~> 0.4.4)
+  rubyzip (~> 2.3)
   solargraph (~> 0.48.0)
   xdg (~> 7.0)
   zeitwerk (~> 2.4.0)

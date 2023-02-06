@@ -9,6 +9,10 @@ gem "ox", "~> 2.14.0"
 # Zeitwerk is a modern code loader for Ruby
 gem "zeitwerk", "~> 2.4.0"
 
+gem "commander", "~> 4.6"
+gem "rubyzip", "~> 2.3"
+gem "xdg", "~> 7.0"
+
 group :development do
   # Code formatter
   gem "rubocop", "~> 1.44.0", require: false
@@ -33,9 +37,3 @@ group :test do
   # Unit testing framework
   gem "minitest", "~> 5.17"
 end
-
-gem "commander", "~> 4.6"
-
-gem "certificate_authority", "~> 1.1"
-
-gem "xdg", "~> 7.0"

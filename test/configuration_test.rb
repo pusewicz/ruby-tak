@@ -74,6 +74,10 @@ class ConfigurationTest < Minitest::Test
     assert_raises(RubyTAK::Configuration::ArgumentError) { configuration.cot_ssl_port = 65_536 }
   end
 
+  def test_hostname_default
+    assert_equal Socket.gethostname, configuration.hostname
+  end
+
   def test_configure
     RubyTAK.configure do |conf|
       conf.cot_ssl_port = 1111

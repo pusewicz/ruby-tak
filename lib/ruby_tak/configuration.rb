@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require "xdg"
+require "socket"
 
 module RubyTAK
   class Configuration
     class ArgumentError < ::ArgumentError; end
 
     attr_reader :cot_ssl_port
-    attr_accessor :ca_crt, :ca_key, :server_crt, :server_key, :server_p12
+    attr_accessor :ca_crt, :ca_key, :server_crt, :server_key, :server_p12, :hostname
 
     def initialize
       @ca_crt = "#{subdirectory}-ca.crt"
@@ -15,6 +16,7 @@ module RubyTAK
       @server_crt = "#{subdirectory}-server.crt"
       @server_key = "#{subdirectory}-server.key"
       @server_p12 = "#{subdirectory}-server.p12"
+      @hostname = Socket.gethostname
       @cot_ssl_port = 8089
     end
 
@@ -49,14 +51,14 @@ module RubyTAK
       @cot_ssl_port = port
     end
 
+    def certs_dir
+      @certs_dir ||= config_home.join("certs").tap(&:mkpath)
+    end
+
     private
 
     def config_home
       @config_home ||= Pathname.new(xdg.config_home).join(subdirectory).tap(&:mkpath)
-    end
-
-    def certs_dir
-      @certs_dir ||= config_home.join("certs").tap(&:mkpath)
     end
 
     def xdg

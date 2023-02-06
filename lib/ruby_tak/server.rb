@@ -111,8 +111,8 @@ module RubyTAK
     end
 
     def setup_certificates
-      rsa_cert = OpenSSL::X509::Certificate.new(::File.read("certs/server.crt"))
-      rsa_pkey = OpenSSL::PKey::RSA.new(::File.read("certs/server.key"))
+      rsa_cert = OpenSSL::X509::Certificate.new(File.read(RubyTAK.configuration.server_crt_path))
+      rsa_pkey = OpenSSL::PKey::RSA.new(File.read(RubyTAK.configuration.server_key_path))
       @context.add_certificate(rsa_cert, rsa_pkey)
     end
   end
