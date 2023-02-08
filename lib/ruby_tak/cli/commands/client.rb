@@ -24,7 +24,7 @@ module RubyTAK
         private
 
         def create_client
-          Dir.mktmpdir(["client", @name]) do |dir|
+          Dir.mktmpdir(["client", @name]) do |dir| # rubocop:disable Metrics/BlockLength
             # Copy server p12
             target_server_p12_path = File.join(dir, "#{@file_prefix}-server.p12")
             puts "Copying server p12 to #{target_server_p12_path}"

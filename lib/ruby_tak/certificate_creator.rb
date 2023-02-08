@@ -51,7 +51,7 @@ module RubyTAK
       write_cert(RubyTAK.configuration.ca_crt_path, RubyTAK.configuration.ca_key_path, signed, private_key)
     end
 
-    def create_crt_and_key(server: true, name: nil)
+    def create_crt_and_key(server: true, name: nil) # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
       raise ArgumentError, "Name is required for client certificates" if !server && name.nil?
 
       private_key = OpenSSL::PKey::RSA.generate(2048, 65_537)
