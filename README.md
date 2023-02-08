@@ -1,4 +1,4 @@
-# ruby-tak
+# ruby-tak ![Main](https://github.com/pusewicz/ruby-tak/actions/workflows/main.yml/badge.svg)
 
 RubyTAK—TAK server written in Ruby
 
