@@ -11,4 +11,7 @@ RUN bundle install
 
 COPY . .
 
-CMD ["./exe/ruby_tak"]
+EXPOSE 8089
+
+ENTRYPOINT ["./exe/ruby_tak"]
+CMD ["server"]
