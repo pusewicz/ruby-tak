@@ -32,4 +32,13 @@ class MessageTest < Minitest::Test
 
     assert_equal XML.strip, message.to_xml.strip
   end
+
+  def test_ping
+    message = RubyTAK::Message.from_ox_element(RubyTAK::MessageParser.parse(<<~XML))
+      <?xml version="1.0"?>
+      <event version="2.0" uid="ANDROID-82cd68af1fb8fd80-ping" type="t-x-c-t" time="2023-02-09T05:34:07.851Z" start="2023-02-09T05:34:07.851Z" stale="2023-02-09T05:34:17.851Z" how="m-g"><point lat="0.00000000" lon="0.00000000" hae="0.00000000" ce="9999999" le="9999999"/><detail/></event>
+    XML
+
+    assert_predicate message, :ping?
+  end
 end
