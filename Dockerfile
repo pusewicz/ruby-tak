@@ -1,17 +1,21 @@
 ARG RUBY_VERSION=3.2.1
 FROM ruby:$RUBY_VERSION
 
-RUN bundle config --global frozen 1
-RUN bundle config --global without "development test"
+WORKDIR /app
+USER app
 
-WORKDIR /usr/src/app
+COPY Gemfile* ./
+RUN bundle config --global frozen 1 && \
+    bundle config --global without "development test" && \
+    bundle install && \
+    rm -rf /usr/local/bundle/cache/*.gem && \
+    find /usr/local/bundle/gems/ -name "*.c" -delete && \
+    find /usr/local/bundle/gems/ -name "*.o" -delete
 
-COPY Gemfile Gemfile.lock ./
-RUN bundle install
+COPY ./exe ./lib ./
 
-COPY . .
+ENV RUBY_YJIT_ENABLE=1
 
 EXPOSE 8089
-
-ENTRYPOINT ["./exe/ruby_tak"]
-CMD ["server"]
+VOLUME ["$HOME/.config/ruby_tak"]
+ENTRYPOINT ["/app/entrypoint.sh"]
