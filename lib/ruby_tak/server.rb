@@ -19,7 +19,7 @@ module RubyTAK
       @logger = logger
       @clients = ::Set.new
       logger.info("Starting #{self.class.name} v#{RubyTAK::VERSION} on port #{@port}")
-      @server = TCPServer.new(@port)
+      @server = TCPServer.new("0.0.0.0", @port)
       @context = OpenSSL::SSL::SSLContext.new
       setup_certificates
       @ssl_server = OpenSSL::SSL::SSLServer.new(@server, @context)
