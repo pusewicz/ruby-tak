@@ -2,7 +2,6 @@ ARG RUBY_VERSION=3.2.1
 FROM ruby:$RUBY_VERSION
 
 WORKDIR /app
-USER app
 
 COPY Gemfile* ./
 RUN bundle config --global frozen 1 && \
@@ -12,7 +11,7 @@ RUN bundle config --global frozen 1 && \
     find /usr/local/bundle/gems/ -name "*.c" -delete && \
     find /usr/local/bundle/gems/ -name "*.o" -delete
 
-COPY ./exe ./lib ./
+COPY . ./
 
 ENV RUBY_YJIT_ENABLE=1
 
