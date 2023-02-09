@@ -14,6 +14,12 @@ module RubyTAK
       @message.name == "event"
     end
 
+    def ping?
+      return unless event?
+
+      @message.attributes[:type] == "t-x-c-t"
+    end
+
     def marti?
       return unless @message.respond_to?(:detail)
       return unless @message.detail.respond_to?(:marti)
