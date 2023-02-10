@@ -69,8 +69,8 @@ module RubyTAK
             File.write(preference_path, pref_builder.to_xml)
 
             # Create zip
-            zip_path = File.join(Dir.pwd, "#{@name}.zip")
-            if File.exist?(zip_path)
+            zip_path = @config.data_package_dir.join("#{@name}.zip")
+            if zip_path.exist?
               puts "Zip already exists at #{zip_path}"
             else
               puts "Creating zip at #{zip_path}"

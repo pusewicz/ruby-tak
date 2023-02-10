@@ -26,3 +26,7 @@ kill_timeout = 5
 [mounts]
 source="ruby_tak_config"
 destination="/home/app/.config/ruby_tak"
+
+[[statics]]
+  guest_path = "/home/app/.config/ruby_tak/data_packages"
+  url_prefix = "/data_packages"
