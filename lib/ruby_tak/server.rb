@@ -32,7 +32,7 @@ module RubyTAK
         socket = @ssl_server.accept
         handle_accept(socket)
       rescue OpenSSL::SSL::SSLError => e
-        raise unless e.message.match?(/SSL_read: unexpected eof while reading/i)
+        raise unless e.message.match?(/unexpected eof while reading/i)
 
         logger.warn(e.message)
       end
