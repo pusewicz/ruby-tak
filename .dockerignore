@@ -1,2 +1,13 @@
 # flyctl launch added from .gitignore
 fly.toml
+test/
+taky/
+log/
+certs/
+bin/
+.github/
+.git/
+*.conf
+*.zip
+*.yml
+TODO
