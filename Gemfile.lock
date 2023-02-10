@@ -93,7 +93,7 @@ GEM
     xdg (7.0.1)
     yard (0.9.28)
       webrick (~> 1.7.0)
-    zeitwerk (2.6.6)
+    zeitwerk (2.6.7)
 
 PLATFORMS
   aarch64-linux
@@ -116,7 +116,7 @@ DEPENDENCIES
   rubyzip (~> 2.3)
   solargraph (~> 0.48.0)
   xdg (~> 7.0)
-  zeitwerk (~> 2.6.6)
+  zeitwerk (~> 2.6.7)
 
 BUNDLED WITH
    2.4.5
