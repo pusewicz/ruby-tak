@@ -22,3 +22,10 @@ require "rubocop/rake_task"
 RuboCop::RakeTask.new
 
 task default: %i[test rubocop]
+
+namespace :docker do
+  desc "Build docker image"
+  task :build do
+    sh "docker build -t ruby-tak . --build-arg RUBY_VERSION=#{RUBY_VERSION}"
+  end
+end
