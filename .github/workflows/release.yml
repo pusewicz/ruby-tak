@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
+
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          release-type: ruby
+          package-name: ruby-tak
+          bump-minor-pre-major: true
+          version-file: "lib/ruby_tak/version.rb"
+
+      - uses: actions/checkout@v3
+        if: ${{ steps.release.outputs.release_created }}
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+        if: ${{ steps.release.outputs.release_created }}
+
+      - name: Get gem version
+        id: pkg_version
+        run: echo "ruby-tak-version=$(ruby -Ilib/ruby_tak -r version -e 'print RubyTAK::VERSION')" >> $GITHUB_OUTPUT
+        if: ${{ steps.release.outputs.release_created }}
+
+      - name: Build gem
+        run: rake build
+        if: ${{ steps.release.outputs.release_created }}
+
+      - name: Publish gem
+        run: |
+          mkdir -p $HOME/.gem
+          printf -- "---\n:rubygems_api_key: ${GEM_HOST_API_KEY}\n:github: Bearer ${GITHUB_TOKEN}\n" > $HOME/.gem/credentials
+          chmod 0600 $HOME/.gem/credentials
+          #gem push pkg/ruby-tak-${PKG_VERSION}.gem
+          gem push --key github --host https://rubygems.pkg.github.com/${{ github.actor }} pkg/ruby-tak-${PKG_VERSION}.gem
+        env:
+          GEM_HOST_API_KEY: "${{ secrets.RUBYGEMS_AUTH_TOKEN }}"
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          PKG_VERSION: "${{ steps.pkg_version.outputs['ruby-tak-version'] }}"
+        if: ${{ steps.release.outputs.release_created }}
