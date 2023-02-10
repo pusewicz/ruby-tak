@@ -7,7 +7,7 @@ require "socket"
 require "forwardable"
 
 module RubyTAK
-  class Server
+  class Server # rubocop:disable Metrics/ClassLength
     attr_reader :logger
 
     def self.start
@@ -31,6 +31,10 @@ module RubyTAK
       loop do
         socket = @ssl_server.accept
         handle_accept(socket)
+      rescue OpenSSL::SSL::SSLError => e
+        raise unless e.message.match?(/SSL_read: unexpected eof while reading/i)
+
+        logger.warn(e.message)
       end
     end
 
