@@ -25,4 +25,4 @@ kill_timeout = 5
 
 [mounts]
 source="ruby_tak_config"
-destination="/root/.config/ruby_tak"
+destination="/home/app/.config/ruby_tak"
