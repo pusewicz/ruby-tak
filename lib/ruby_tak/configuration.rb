@@ -10,14 +10,14 @@ module RubyTAK
     attr_reader :cot_ssl_port
     attr_accessor :ca_crt, :ca_key, :server_crt, :server_key, :server_p12, :hostname
 
-    def initialize
+    def initialize(env = ENV.to_h)
       @ca_crt = "#{subdirectory}-ca.crt"
       @ca_key = "#{subdirectory}-ca.key"
       @server_crt = "#{subdirectory}-server.crt"
       @server_key = "#{subdirectory}-server.key"
       @server_p12 = "#{subdirectory}-server.p12"
       @hostname = Socket.gethostname
-      @cot_ssl_port = 8089
+      self.cot_ssl_port = env.fetch("PORT", 8089)
     end
 
     def ca_crt_path
