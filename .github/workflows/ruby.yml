@@ -8,20 +8,15 @@ on:
   pull_request:
 
 jobs:
-  build:
+  rake:
     runs-on: ubuntu-latest
-    name: Ruby ${{ matrix.ruby }}
-    strategy:
-      matrix:
-        ruby:
-          - '3.2.1'
+    name: Rake
 
     steps:
       - uses: actions/checkout@v3
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
       - name: Rake
-        run: bundle exec rake test rubocop
+        run: bundle exec rake
