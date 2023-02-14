@@ -1,21 +1,20 @@
 # fly.toml file generated for ruby-tak on 2023-02-09T19:06:14+01:00
 
 app = "ruby-tak"
-kill_signal = "SIGINT"
-kill_timeout = 5
 
 [env]
-  PORT = 8080
+  XDG_CONFIG_HOME = "/data/config"
+  XDG_DATA_HOME = "/data/data"
 
 [experimental]
   auto_rollback = true
 
 [[services]]
-  internal_port = 8080
+  internal_port = 8089
   protocol = "tcp"
 
   [[services.ports]]
-    port = 8080
+    port = 8089
 
   [[services.tcp_checks]]
     grace_period = "1s"
@@ -25,8 +24,4 @@ kill_timeout = 5
 
 [mounts]
 source="ruby_tak_config"
-destination="/home/app/.config/ruby_tak"
-
-[[statics]]
-  guest_path = "/home/app/.config/ruby_tak/data_packages"
-  url_prefix = "/data_packages"
+destination="/data"

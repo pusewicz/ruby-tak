@@ -56,13 +56,17 @@ module RubyTAK
     end
 
     def data_package_dir
-      @data_package_dir ||= config_home.join("data_packages").tap(&:mkpath)
+      @data_package_dir ||= data_home.join("data_packages").tap(&:mkpath)
     end
 
     private
 
     def config_home
       @config_home ||= Pathname.new(xdg.config_home).join(subdirectory).tap(&:mkpath)
+    end
+
+    def data_home
+      @data_home ||= Pathname.new(xdg.data_home).join(subdirectory).tap(&:mkpath)
     end
 
     def xdg

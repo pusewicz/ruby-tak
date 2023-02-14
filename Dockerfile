@@ -42,5 +42,5 @@ ENV RUBY_YJIT_ENABLE=1
 ENV BUNDLE_WITHOUT="test:development"
 
 EXPOSE 8089
-VOLUME ["$HOME/.config/ruby_tak"]
+VOLUME ["/data"]
 ENTRYPOINT ["/app/entrypoint.sh"]
