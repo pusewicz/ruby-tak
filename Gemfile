@@ -30,7 +30,7 @@ group :development do
   gem "rake", "~> 13.0", require: false
 
   gem "debug", "~> 1.7"
-  gem "minitest-reporters", "~> 1.5"
+  gem "minitest-reporters", "~> 1.6"
 end
 
 group :test do
