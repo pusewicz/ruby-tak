@@ -8,6 +8,7 @@ loader.inflector.inflect("cli" => "CLI")
 loader.setup
 
 require "ox"
+require "logger"
 
 module RubyTAK
   class Error < StandardError; end
