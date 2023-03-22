@@ -14,7 +14,7 @@ module RubyTAK
       new.start
     end
 
-    def initialize(logger: Logger.new($stdout))
+    def initialize(logger: RubyTAK.logger)
       @port = RubyTAK.configuration.cot_ssl_port
       @logger = logger
       @clients = ::Set.new

@@ -17,6 +17,11 @@ module RubyTAK
   end
   module_function :configuration
 
+  def logger
+    @logger ||= Logger.new($stdout)
+  end
+  module_function :logger
+
   def configure(path = nil)
     if path
       load(path)
