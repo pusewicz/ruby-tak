@@ -25,7 +25,7 @@ group :development do
   # Rake plugin for RuboCop
   gem "rubocop-rake", "~> 0.6.0"
   # Ruby LSP server
-  gem "solargraph", "~> 0.48.0", require: false
+  gem "solargraph", "~> 0.49.0", require: false
   # Rake tasks
   gem "rake", "~> 13.0", require: false
 
