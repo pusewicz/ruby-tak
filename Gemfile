@@ -5,7 +5,7 @@ source "https://rubygems.org"
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 # Optimized XML parser
-gem "ox", "~> 2.14.0"
+gem "ox", "~> 2.14.15"
 # Zeitwerk is a modern code loader for Ruby
 gem "zeitwerk", "~> 2.6.7"
 
