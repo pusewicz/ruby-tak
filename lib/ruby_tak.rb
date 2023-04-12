@@ -13,13 +13,19 @@ require "logger"
 module RubyTAK
   class Error < StandardError; end
 
+  @mutex = Mutex.new
+
   def configuration
-    @configuration ||= Configuration.new
+    @mutex.synchronize do
+      @configuration ||= Configuration.new
+    end
   end
   module_function :configuration
 
   def logger
-    @logger ||= Logger.new($stdout)
+    @mutex.synchronize do
+      @logger ||= Logger.new($stdout, level: Logger::INFO)
+    end
   end
   module_function :logger
 
