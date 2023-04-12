@@ -19,7 +19,7 @@ group :development do
   # Performance cops for RuboCop
   gem "rubocop-performance", "~> 1.17.1", require: false
   # Thread safety cops for RuboCop
-  gem "rubocop-thread_safety", "~> 0.4.4", require: false
+  gem "rubocop-thread_safety", "~> 0.5.1", require: false
   # Minitest plugin for RuboCop
   gem "rubocop-minitest", "~> 0.30.0"
   # Rake plugin for RuboCop
