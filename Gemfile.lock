@@ -15,7 +15,7 @@ GEM
     e2mmap (0.1.0)
     highline (2.0.3)
     io-console (0.6.0)
-    irb (1.6.3)
+    irb (1.6.4)
       reline (>= 0.3.0)
     jaro_winkler (1.5.4)
     json (2.6.3)
@@ -36,8 +36,8 @@ GEM
     nokogiri (1.14.3-x86_64-linux)
       racc (~> 1.4)
     ox (2.14.16)
-    parallel (1.22.1)
-    parser (3.2.2.0)
+    parallel (1.23.0)
+    parser (3.2.2.1)
       ast (~> 2.4.1)
     racc (1.6.2)
     rainbow (3.1.1)
@@ -92,7 +92,7 @@ GEM
     tilt (2.1.0)
     unicode-display_width (2.4.2)
     xdg (7.0.2)
-    yard (0.9.32)
+    yard (0.9.34)
     zeitwerk (2.6.7)
 
 PLATFORMS
