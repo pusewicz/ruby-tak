@@ -21,7 +21,7 @@ group :development do
   # Thread safety cops for RuboCop
   gem "rubocop-thread_safety", "~> 0.5.1", require: false
   # Minitest plugin for RuboCop
-  gem "rubocop-minitest", "~> 0.30.0"
+  gem "rubocop-minitest", "~> 0.31.0"
   # Rake plugin for RuboCop
   gem "rubocop-rake", "~> 0.6.0"
   # Ruby LSP server
