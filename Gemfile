@@ -29,7 +29,7 @@ group :development do
   # Rake tasks
   gem "rake", "~> 13.0", require: false
 
-  gem "debug", "~> 1.7"
+  gem "debug", "~> 1.8"
   gem "minitest-reporters", "~> 1.6"
 end
 
