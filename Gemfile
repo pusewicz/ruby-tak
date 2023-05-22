@@ -17,7 +17,7 @@ group :development do
   # Code formatter
   gem "rubocop", "~> 1.51.0", require: false
   # Performance cops for RuboCop
-  gem "rubocop-performance", "~> 1.17.1", require: false
+  gem "rubocop-performance", "~> 1.18.0", require: false
   # Thread safety cops for RuboCop
   gem "rubocop-thread_safety", "~> 0.5.1", require: false
   # Minitest plugin for RuboCop
