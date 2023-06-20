@@ -11,7 +11,7 @@ gem "zeitwerk", "~> 2.6.8"
 
 gem "commander", "~> 4.6"
 gem "rubyzip", "~> 2.3"
-gem "xdg", "~> 7.0"
+gem "xdg", "~> 7.1"
 
 group :development do
   # Code formatter

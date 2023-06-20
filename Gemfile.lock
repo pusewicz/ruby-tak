@@ -92,7 +92,7 @@ GEM
     thor (1.2.2)
     tilt (2.2.0)
     unicode-display_width (2.4.2)
-    xdg (7.1.0)
+    xdg (7.1.1)
     yard (0.9.34)
     zeitwerk (2.6.8)
 
@@ -116,7 +116,7 @@ DEPENDENCIES
   rubocop-thread_safety (~> 0.5.1)
   rubyzip (~> 2.3)
   solargraph (~> 0.49.0)
-  xdg (~> 7.0)
+  xdg (~> 7.1)
   zeitwerk (~> 2.6.8)
 
 BUNDLED WITH
