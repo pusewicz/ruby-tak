@@ -15,15 +15,15 @@ module RubyTAK
     end
 
     def ping?
-      return unless event?
+      return false unless event?
 
       @message.attributes[:type] == "t-x-c-t"
     end
 
     def marti?
-      return unless @message.respond_to?(:detail)
-      return unless @message.detail.respond_to?(:marti)
-      return unless @message.detail.marti.nodes.size.positive?
+      return false unless @message.respond_to?(:detail)
+      return false unless @message.detail.respond_to?(:marti)
+      return false unless @message.detail.marti.nodes.size.positive?
 
       @message.detail.marti.nodes.filter { _1.name == "dest" }.size.positive?
     end
@@ -57,7 +57,7 @@ module RubyTAK
     end
 
     def ident?
-      return unless @message.respond_to?(:detail)
+      return false unless @message.respond_to?(:detail)
 
       (@message.detail.nodes.map(&:name) & IDENT_KEYS).sort == IDENT_KEYS
     end
