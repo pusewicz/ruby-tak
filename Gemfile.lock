@@ -96,7 +96,7 @@ GEM
     unicode-display_width (2.4.2)
     xdg (7.1.1)
     yard (0.9.34)
-    zeitwerk (2.6.8)
+    zeitwerk (2.6.9)
 
 PLATFORMS
   aarch64-linux
@@ -119,7 +119,7 @@ DEPENDENCIES
   rubyzip (~> 2.3)
   solargraph (~> 0.49.0)
   xdg (~> 7.1)
-  zeitwerk (~> 2.6.8)
+  zeitwerk (~> 2.6.9)
 
 BUNDLED WITH
    2.4.5
