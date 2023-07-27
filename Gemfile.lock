@@ -24,7 +24,7 @@ GEM
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
     language_server-protocol (3.17.0.3)
-    minitest (5.18.1)
+    minitest (5.19.0)
     minitest-reporters (1.6.0)
       ansi
       builder
@@ -107,7 +107,7 @@ PLATFORMS
 DEPENDENCIES
   commander (~> 4.6)
   debug (~> 1.8)
-  minitest (~> 5.18)
+  minitest (~> 5.19)
   minitest-reporters (~> 1.6)
   ox (~> 2.14.16)
   rake (~> 13.0)

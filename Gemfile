@@ -35,5 +35,5 @@ end
 
 group :test do
   # Unit testing framework
-  gem "minitest", "~> 5.18"
+  gem "minitest", "~> 5.19"
 end
