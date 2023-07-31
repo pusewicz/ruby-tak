@@ -46,11 +46,11 @@ GEM
     rake (13.0.6)
     rbs (2.8.4)
     regexp_parser (2.8.1)
-    reline (0.3.6)
+    reline (0.3.7)
       io-console (~> 0.5)
     reverse_markdown (2.1.1)
       nokogiri
-    rexml (3.2.5)
+    rexml (3.2.6)
     rubocop (1.55.0)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
@@ -96,7 +96,7 @@ GEM
     unicode-display_width (2.4.2)
     xdg (7.1.1)
     yard (0.9.34)
-    zeitwerk (2.6.9)
+    zeitwerk (2.6.10)
 
 PLATFORMS
   aarch64-linux
