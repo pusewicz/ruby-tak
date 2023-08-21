@@ -15,7 +15,7 @@ gem "xdg", "~> 7.1"
 
 group :development do
   # Code formatter
-  gem "rubocop", "~> 1.56.0", require: false
+  gem "rubocop", "~> 1.56.1", require: false
   # Performance cops for RuboCop
   gem "rubocop-performance", "~> 1.19.0", require: false
   # Thread safety cops for RuboCop
