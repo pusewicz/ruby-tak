@@ -104,7 +104,7 @@ GEM
     unicode-display_width (2.4.2)
     xdg (7.1.1)
     yard (0.9.34)
-    zeitwerk (2.6.11)
+    zeitwerk (2.6.12)
 
 PLATFORMS
   aarch64-linux
