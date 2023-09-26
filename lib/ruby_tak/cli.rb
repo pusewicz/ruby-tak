@@ -18,20 +18,6 @@ module RubyTAK
         s.action { |_args, _options| RubyTAK::Server.start }
       end
 
-      command :certificate do |s|
-        s.syntax = "ruby_tak certificate ca|server|client"
-        s.summary = "Generate certificates for CA, Server or Client"
-        s.option "--name [NAME]", String, "Name of the client certificate"
-        s.when_called Commands::Certificate
-      end
-
-      command :client do |s|
-        s.syntax = "ruby_tak client"
-        s.summary = "Generate client package"
-        s.option "--name NAME", String, "Name of the client"
-        s.when_called Commands::Client
-      end
-
       run!
     end
   end

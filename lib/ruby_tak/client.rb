@@ -4,7 +4,7 @@ module RubyTAK
   class Client
     extend Forwardable
 
-    def_delegators :@socket, :write
+    def_delegators :@socket, :write, :readpartial
 
     attr_reader :remote_addr, :uid, :callsign, :group
 

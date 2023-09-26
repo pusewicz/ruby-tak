@@ -1,4 +1,4 @@
-ARG RUBY_VERSION
+ARG RUBY_VERSION=3.2.2
 
 ################
 # Stage: Builder
@@ -6,7 +6,6 @@ FROM ruby:$RUBY_VERSION-alpine as builder
 
 RUN apk add --update --no-cache \
     build-base \
-    git \
     tzdata
 
 WORKDIR /app
@@ -25,7 +24,6 @@ COPY . /app
 ##############
 # Stage: Final
 FROM ruby:$RUBY_VERSION-alpine
-LABEL maintainer="piotr@layer22.com"
 
 # Add user
 RUN addgroup -g 1000 -S app \

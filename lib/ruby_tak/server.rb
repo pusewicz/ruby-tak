@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-require "openssl"
 require "ox"
 require "socket"
 require "forwardable"
 
 module RubyTAK
-  class Server # rubocop:disable Metrics/ClassLength
+  class Server
     attr_reader :logger
 
     def self.start
@@ -19,21 +18,14 @@ module RubyTAK
       @clients = ::Set.new
       logger.info("Starting #{self.class.name} v#{RubyTAK::VERSION} on port #{@port}")
       @server = TCPServer.new("0.0.0.0", @port)
-      @context = OpenSSL::SSL::SSLContext.new
-      setup_certificates
-      @ssl_server = OpenSSL::SSL::SSLServer.new(@server, @context)
     end
 
     # TODO: Make things non-blocking
     # https://stackoverflow.com/questions/29858113/unable-to-make-socket-accept-non-blocking-ruby-2-2
     def start
       loop do
-        socket = @ssl_server.accept
+        socket = @server.accept
         handle_accept(socket)
-      rescue OpenSSL::SSL::SSLError => e
-        raise unless e.message.match?(/unexpected eof while reading/i)
-
-        logger.warn(e.message)
       end
     end
 
@@ -42,14 +34,13 @@ module RubyTAK
     def handle_accept(socket)
       client = Client.new(socket)
       @clients << client
-      logger.info("CONN: #{client.inspect}")
-      Thread.start(socket) do |sock|
+      Thread.start(client) do |c|
         loop do
-          data = sock.readpartial(4096)
-          handle_data(client, data)
+          data = c.readpartial(4096)
+          handle_data(c, data)
         rescue EOFError => e
-          logger.info("EXIT: #{client.inspect}, #{e.inspect}")
-          handle_disconnect(client)
+          logger.info("EXIT: #{c.inspect}, #{e.inspect}")
+          handle_disconnect(c)
           Thread.exit
         end
       end
@@ -61,7 +52,6 @@ module RubyTAK
       logger.info("RECV: #{client.inspect} -> #{parsed_data.inspect}")
 
       case parsed_data.name
-      when "auth" then handle_auth(client, parsed_data)
       when "event" then handle_event(client, parsed_data)
       else
         raise "Unknown message type: #{data.inspect}"
@@ -70,12 +60,6 @@ module RubyTAK
 
     def handle_disconnect(client)
       @clients.delete(client)
-    end
-
-    def handle_auth(_client, _auth)
-      # TODO: Implement username/password authentication
-
-      logger.warn("AUTH: NotImplemented")
     end
 
     def handle_event(client, event)
@@ -98,8 +82,7 @@ module RubyTAK
       end
     end
 
-    def handle_ping(client, ping)
-      logger.info("PING: #{client.inspect} -> #{ping.inspect}")
+    def handle_ping(client, _ping)
       now = Time.now.utc
       # TODO: Encapsulate this in a Message class
       pong = Ox::Document.new
@@ -131,12 +114,6 @@ module RubyTAK
         logger.info "SEND: #{client.inspect} <- #{message.inspect} FROM #{source_client.inspect}"
         client.write(data)
       end
-    end
-
-    def setup_certificates
-      rsa_cert = OpenSSL::X509::Certificate.new(File.read(RubyTAK.configuration.server_crt_path))
-      rsa_pkey = OpenSSL::PKey::RSA.new(File.read(RubyTAK.configuration.server_key_path))
-      @context.add_certificate(rsa_cert, rsa_pkey)
     end
   end
 end
