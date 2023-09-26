@@ -9,8 +9,6 @@ gem "ox", "~> 2.14.16"
 # Zeitwerk is a modern code loader for Ruby
 gem "zeitwerk", "~> 2.6.11"
 
-gem "commander", "~> 4.6"
-gem "rubyzip", "~> 2.3"
 gem "xdg", "~> 7.1"
 
 group :development do
