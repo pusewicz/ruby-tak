@@ -2,7 +2,7 @@
 
 RubyTAK—TAK server written in Ruby
 
-![Contributions](https://repobeats.axiom.co/api/embed/062386b23b6a091395faf40a4f2a9a3e3dd389ad.svg "Repobeats analytics image")
+<img src="https://repobeats.axiom.co/api/embed/062386b23b6a091395faf40a4f2a9a3e3dd389ad.svg" width="814" height="318"/>
 
 ## Quick start
 
