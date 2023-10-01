@@ -19,7 +19,7 @@ class MessageTest < Minitest::Test
   XML
 
   def test_from_ox_element
-    message = RubyTAK::Message.from_ox_element(RubyTAK::MessageParser.parse(XML))
+    message = RubyTAK::Message.new(XML)
 
     assert_equal(
       { version: "2.0", uid: "FBE5C615-2EC8-427D-8178-E2DD9716E361", type: "a-f-G-E-V-C", how: "h-e",
@@ -28,13 +28,13 @@ class MessageTest < Minitest::Test
   end
 
   def test_to_xml
-    message = RubyTAK::Message.from_ox_element(RubyTAK::MessageParser.parse(XML))
+    message = RubyTAK::Message.new(XML)
 
     assert_equal XML.strip, message.to_xml.strip
   end
 
   def test_ping
-    message = RubyTAK::Message.from_ox_element(RubyTAK::MessageParser.parse(<<~XML))
+    message = RubyTAK::Message.new(<<~XML)
       <?xml version="1.0"?>
       <event version="2.0" uid="ANDROID-82cd68af1fb8fd80-ping" type="t-x-c-t" time="2023-02-09T05:34:07.851Z" start="2023-02-09T05:34:07.851Z" stale="2023-02-09T05:34:17.851Z" how="m-g"><point lat="0.00000000" lon="0.00000000" hae="0.00000000" ce="9999999" le="9999999"/><detail/></event>
     XML
