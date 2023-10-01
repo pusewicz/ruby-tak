@@ -10,6 +10,7 @@ gem "zeitwerk", "~> 2.6.11"
 
 group :development do
   gem "debug", "~> 1.8"
+  gem "overcommit", require: false
   gem "rake", "~> 13.0", require: false
   gem "rubocop", "~> 1.56.4", require: false
   gem "rubocop-minitest", "~> 0.32.2"

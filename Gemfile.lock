@@ -5,11 +5,13 @@ GEM
     backport (1.2.0)
     base64 (0.1.1)
     benchmark (0.2.1)
+    childprocess (4.1.0)
     debug (1.8.0)
       irb (>= 1.5.0)
       reline (>= 0.3.1)
     diff-lcs (1.5.0)
     e2mmap (0.1.0)
+    iniparse (1.5.0)
     io-console (0.6.0)
     irb (1.8.1)
       rdoc
@@ -28,6 +30,10 @@ GEM
       racc (~> 1.4)
     nokogiri (1.15.4-x86_64-linux)
       racc (~> 1.4)
+    overcommit (0.60.0)
+      childprocess (>= 0.6.3, < 5)
+      iniparse (~> 1.4)
+      rexml (~> 3.2)
     ox (2.14.17)
     parallel (1.23.0)
     parser (3.2.2.3)
@@ -104,6 +110,7 @@ PLATFORMS
 DEPENDENCIES
   debug (~> 1.8)
   minitest (~> 5.20)
+  overcommit
   ox (~> 2.14.16)
   rake (~> 13.0)
   rubocop (~> 1.56.4)
