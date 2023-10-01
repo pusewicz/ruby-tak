@@ -35,6 +35,7 @@ module RubyTAK
       client = Client.new(socket)
       @clients << client
       Thread.start(client) do |c|
+        logger.info("ACCEPT: #{c.inspect}")
         loop do
           data = c.readpartial(4096)
           handle_data(c, data)
@@ -47,24 +48,24 @@ module RubyTAK
     end
 
     def handle_data(client, data)
-      parsed_data = parse_data(data)
+      logger.info("RECV: #{client.inspect} -> #{data.inspect}")
 
-      logger.info("RECV: #{client.inspect} -> #{parsed_data.inspect}")
+      message = Message.new(data)
 
-      case parsed_data.name
-      when "event" then handle_event(client, parsed_data)
+      case message.name
+      when "event" then handle_event(client, message)
       else
         raise "Unknown message type: #{data.inspect}"
       end
     end
 
     def handle_disconnect(client)
-      @clients.delete(client)
+      @clients.delete(client).tap do |result|
+        logger.info("DISCONNECT: #{client.inspect}, #{result.inspect}")
+      end
     end
 
-    def handle_event(client, event)
-      message = Message.from_ox_element(event)
-
+    def handle_event(client, message)
       client.user = message if message.ident?
 
       return handle_ping(client, message) if message.ping?
@@ -83,26 +84,7 @@ module RubyTAK
     end
 
     def handle_ping(client, _ping)
-      now = Time.now.utc
-      # TODO: Encapsulate this in a Message class
-      pong = Ox::Document.new
-      pong << Ox::Element.new("event") do |e|
-        e[:uid] = "takPong"
-        e[:type] = "t-x-c-t-r"
-        e[:how] = "h-g-i-g-o"
-        e[:time] = now.iso8601
-        e[:start] = now.iso8601
-        e[:stale] = (now + 20).iso8601
-        e[:version] = "2.0"
-      end
-
-      client.write(Ox.dump(pong))
-    end
-
-    def parse_data(data)
-      parsed_data = MessageParser.parse(data)
-      parsed_data = parsed_data.root if parsed_data.respond_to?(:root)
-      parsed_data
+      client.write(MessageBuilder.pong)
     end
 
     def broadcast(message, source_client)

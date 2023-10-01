@@ -3,67 +3,82 @@
 # https://gist.github.com/a-f-G-U-C/77fed4e7aea38e27f3c50583e840a35b
 
 module RubyTAK
-  class Message
+  class Message < String
+    extend Forwardable
+
+    def_delegators :parsed_message, :name, :attributes, :nodes, :detail
+
     IDENT_KEYS = %w[__group contact takv].freeze
 
     def initialize(message)
-      @message = message
+      super(message)
+      @parsed_message = nil
     end
 
     def event?
-      @message.name == "event"
+      parsed_message.name == "event"
     end
 
     def ping?
       return false unless event?
 
-      @message.attributes[:type] == "t-x-c-t"
+      parsed_message.attributes[:type] == "t-x-c-t"
     end
 
     def marti?
-      return false unless @message.respond_to?(:detail)
-      return false unless @message.detail.respond_to?(:marti)
-      return false unless @message.detail.marti.nodes.size.positive?
+      return false unless parsed_message.respond_to?(:detail)
+      return false unless parsed_message.detail.respond_to?(:marti)
+      return false unless parsed_message.detail.marti.nodes.size.positive?
 
-      @message.detail.marti.nodes.filter { _1.name == "dest" }.size.positive?
+      parsed_message.detail.marti.nodes.filter { _1.name == "dest" }.size.positive?
     end
 
     def marti_dest_uids
       return unless marti?
 
-      @message.detail.marti.nodes.filter { _1.name == "dest" }.map { _1.attributes[:uid] }
+      parsed_message.detail.marti.nodes.filter { _1.name == "dest" }.map { _1.attributes[:uid] }
     end
 
     def attributes
-      @message.attributes
+      parsed_message.attributes
     end
 
     def contact
-      return unless @message.respond_to?(:detail)
-      return unless @message.detail.respond_to?(:contact)
+      return unless parsed_message.respond_to?(:detail)
+      return unless parsed_message.detail.respond_to?(:contact)
 
-      @message.detail.contact
+      parsed_message.detail.contact
     end
 
     def group
-      return unless @message.respond_to?(:detail)
-      return unless @message.detail.respond_to?(:__group)
+      return unless parsed_message.respond_to?(:detail)
+      return unless parsed_message.detail.respond_to?(:__group)
 
-      @message.detail.__group
-    end
-
-    def self.from_ox_element(event)
-      new(event).freeze
+      parsed_message.detail.__group
     end
 
     def ident?
-      return false unless @message.respond_to?(:detail)
+      return false unless parsed_message.respond_to?(:detail)
 
-      (@message.detail.nodes.map(&:name) & IDENT_KEYS).sort == IDENT_KEYS
+      (parsed_message.detail.nodes.map(&:name) & IDENT_KEYS).sort == IDENT_KEYS
     end
 
     def to_xml
-      Ox.dump(@message)
+      Ox.dump(parsed_message)
+    end
+
+    private
+
+    def parsed_message
+      @parsed_message ||= begin
+        message = MessageParser.parse(to_s)
+
+        if message.respond_to?(:root)
+          message.root
+        else
+          message
+        end
+      end
     end
   end
 end

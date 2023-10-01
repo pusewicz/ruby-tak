@@ -19,15 +19,5 @@ module RubyTAK
       @group = event.group.attributes[:name]
       @uid = event.attributes[:uid]
     end
-
-    def inspect
-      attrs = {
-        remote_addr: @remote_addr,
-        uid: @uid,
-        callsign: @callsign,
-        group: @group
-      }
-      "#{self.class.name}(#{attrs.map { |k, v| "#{k}=#{v.inspect}" }.join(", ")})"
-    end
   end
 end
