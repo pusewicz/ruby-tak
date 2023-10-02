@@ -25,7 +25,7 @@ module RubyTAK
   def logger
     $stdout.sync = true
     @mutex.synchronize do
-      @logger ||= Logger.new($stdout, level: Logger::INFO)
+      @logger ||= Logger.new($stdout, level: ENV["DEBUG"] ? Logger::DEBUG : Logger::INFO)
     end
   end
   module_function :logger

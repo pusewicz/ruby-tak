@@ -40,7 +40,8 @@ services:
       traefik.enable: true
       traefik.tcp.routers.rubytak.rule: HostSNI(`*`)
       traefik.tcp.routers.rubytak.tls: true
-
+    environment:
+      DEBUG: true
     networks:
       - proxy
 
