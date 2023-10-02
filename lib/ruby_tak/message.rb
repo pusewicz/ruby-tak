@@ -50,6 +50,12 @@ module RubyTAK
       parsed_message.detail.contact
     end
 
+    def cot
+      return unless parsed_message.respond_to?(:cot)
+
+      parsed_message.cot
+    end
+
     def group
       return unless parsed_message.respond_to?(:detail)
       return unless parsed_message.detail.respond_to?(:__group)

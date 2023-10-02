@@ -4,14 +4,15 @@ module RubyTAK
   class Client
     extend Forwardable
 
-    def_delegators :@socket, :write, :readpartial
+    def_delegators :@socket, :readpartial, :close, :write
 
-    attr_reader :remote_addr, :uid, :callsign, :group
+    attr_accessor :uid, :username
+    attr_reader :remote_addr, :callsign, :group
 
     def initialize(socket)
       @socket = socket
-
       @remote_addr = socket.peeraddr.last
+      @uid = "__ANONYMOUS-#{SecureRandom.hex(6)}-#{@remote_addr}"
     end
 
     def user=(event)
