@@ -9,7 +9,7 @@ gem "xdg", "~> 7.1"
 gem "zeitwerk", "~> 2.6.11"
 
 group :development do
-  gem "debug", "~> 1.8"
+  gem "debug", "~> 1.9"
   gem "overcommit", require: false
   gem "rake", "~> 13.1", require: false
   gem "rubocop", "~> 1.60.2", require: false
