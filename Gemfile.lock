@@ -33,7 +33,7 @@ GEM
       childprocess (>= 0.6.3, < 6)
       iniparse (~> 1.4)
       rexml (~> 3.2)
-    ox (2.14.17)
+    ox (2.14.18)
     parallel (1.24.0)
     parser (3.3.0.5)
       ast (~> 2.4.1)
@@ -110,7 +110,7 @@ DEPENDENCIES
   debug (~> 1.9)
   minitest (~> 5.22)
   overcommit
-  ox (~> 2.14.16)
+  ox (~> 2.14.18)
   rake (~> 13.1)
   rubocop (~> 1.62.1)
   rubocop-minitest (~> 0.35.0)
