@@ -4,7 +4,7 @@ source "https://rubygems.org"
 
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
-gem "ox", "~> 2.14.16"
+gem "ox", "~> 2.14.18"
 gem "xdg", "~> 7.1"
 gem "zeitwerk", "~> 2.6.13"
 
