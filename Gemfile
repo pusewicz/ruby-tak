@@ -11,7 +11,7 @@ gem "zeitwerk", "~> 2.6.13"
 group :development do
   gem "debug", "~> 1.9"
   gem "overcommit", require: false
-  gem "rake", "~> 13.1", require: false
+  gem "rake", "~> 13.2", require: false
   gem "rubocop", "~> 1.62.1", require: false
   gem "rubocop-minitest", "~> 0.35.0"
   gem "rubocop-performance", "~> 1.21.0", require: false
