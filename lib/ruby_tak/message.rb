@@ -10,8 +10,8 @@ module RubyTAK
 
     IDENT_KEYS = %w[__group contact takv].freeze
 
-    def initialize(message)
-      super(message)
+    def initialize(*)
+      super
       @parsed_message = nil
     end
 
