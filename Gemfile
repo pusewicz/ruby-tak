@@ -6,7 +6,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 gem "ox", "~> 2.14.18"
 gem "xdg", "~> 7.1"
-gem "zeitwerk", "~> 2.7.0"
+gem "zeitwerk", "~> 2.7.1"
 
 group :development do
   gem "debug", "~> 1.9"
