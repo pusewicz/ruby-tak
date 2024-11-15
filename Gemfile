@@ -16,7 +16,7 @@ group :development do
   gem "rubocop-minitest", "~> 0.36.0"
   gem "rubocop-performance", "~> 1.23.0", require: false
   gem "rubocop-rake", "~> 0.6.0"
-  gem "rubocop-thread_safety", "~> 0.5.1", require: false
+  gem "rubocop-thread_safety", "~> 0.6.0", require: false
   gem "solargraph", "~> 0.50.0", require: false
 end
 
