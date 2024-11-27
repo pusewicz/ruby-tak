@@ -12,7 +12,7 @@ group :development do
   gem "debug", "~> 1.9"
   gem "overcommit", require: false
   gem "rake", "~> 13.2", require: false
-  gem "rubocop", "~> 1.68.0", require: false
+  gem "rubocop", "~> 1.69.0", require: false
   gem "rubocop-minitest", "~> 0.36.0"
   gem "rubocop-performance", "~> 1.23.0", require: false
   gem "rubocop-rake", "~> 0.6.0"
