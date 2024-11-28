@@ -4,21 +4,20 @@ source "https://rubygems.org"
 
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
-gem "ox", "~> 2.14.18"
-gem "xdg", "~> 7.1"
-gem "zeitwerk", "~> 2.7.1"
+gem "ox"
+gem "xdg"
+gem "zeitwerk"
 
 group :development do
-  gem "debug", "~> 1.9"
+  gem "debug", require: false
   gem "overcommit", require: false
-  gem "rake", "~> 13.2", require: false
-  gem "rubocop", "~> 1.69.0", require: false
-  gem "rubocop-minitest", "~> 0.36.0"
-  gem "rubocop-performance", "~> 1.23.0", require: false
-  gem "rubocop-rake", "~> 0.6.0"
-  gem "solargraph", "~> 0.50.0", require: false
+  gem "rake", require: false
+  gem "rubocop", require: false
+  gem "rubocop-minitest", require: false
+  gem "rubocop-performance", require: false
+  gem "rubocop-rake", require: false
 end
 
 group :test do
-  gem "minitest", "~> 5.25"
+  gem "minitest"
 end
