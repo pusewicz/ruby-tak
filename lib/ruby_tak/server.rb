@@ -6,6 +6,10 @@ require "forwardable"
 
 module RubyTAK
   class Server
+    USERS = {
+      "piotr" => "password"
+    }.freeze
+
     attr_reader :logger
 
     def self.start
@@ -92,10 +96,6 @@ module RubyTAK
         broadcast(message, client)
       end
     end
-
-    USERS = {
-      "piotr" => "password"
-    }.freeze
 
     def handle_auth(client, message)
       # <?xml version=\"1.0\"?>\n<auth><cot username=\"piotr\" password=\"password\" uid=\"ANDROID-82cd68af1fb8fd80\"/></auth>
