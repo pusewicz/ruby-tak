@@ -1,0 +1,20 @@
+# Test coverage
+coverage/
+
+# Development
+.DS_Store
+*.gem
+*.rbc
+.bundle
+.config
+.yardoc
+_yardoc
+doc/
+pkg/
+rdoc
+tmp/
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
