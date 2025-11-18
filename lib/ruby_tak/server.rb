@@ -10,6 +10,9 @@ module RubyTAK
       "piotr" => "password"
     }.freeze
 
+    MAX_CONNECTIONS = 100
+    CONNECTION_TIMEOUT = 300 # seconds
+
     attr_reader :logger
 
     def self.start
@@ -27,6 +30,7 @@ module RubyTAK
     # TODO: Make things non-blocking
     # https://stackoverflow.com/questions/29858113/unable-to-make-socket-accept-non-blocking-ruby-2-2
     def start
+      start_connection_watchdog
       loop do
         socket = @server.accept
         handle_accept(socket)
@@ -35,7 +39,27 @@ module RubyTAK
 
     private
 
+    def start_connection_watchdog
+      Thread.start do
+        loop do
+          sleep 30
+          now = Time.now
+          @clients.select { |c| now - c.last_activity_at > CONNECTION_TIMEOUT }.each do |c|
+            logger.warn("TIMEOUT: #{c.uid}")
+            handle_disconnect(c)
+            c.close rescue nil
+          end
+        end
+      end
+    end
+
     def handle_accept(socket)
+      if @clients.size >= MAX_CONNECTIONS
+        logger.warn("MAX_CONNECTIONS reached, rejecting connection")
+        socket.close
+        return
+      end
+
       client = Client.new(socket)
       @clients << client
       logger.debug("Client count: #{@clients.size}")
@@ -43,6 +67,7 @@ module RubyTAK
         logger.debug("ACCEPT: #{c.uid}")
         loop do
           data = c.readpartial(4096)
+          c.touch
           handle_data(c, data)
         rescue EOFError => e
           logger.error("EXIT: #{c.uid}, #{e.inspect}")
