@@ -87,7 +87,7 @@ GEM
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.1.0)
-    xdg (8.10.0)
+    xdg (9.5.0)
     zeitwerk (2.7.3)
 
 PLATFORMS

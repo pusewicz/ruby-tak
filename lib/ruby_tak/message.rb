@@ -30,13 +30,13 @@ module RubyTAK
       return false unless parsed_message.detail.respond_to?(:marti)
       return false unless parsed_message.detail.marti.nodes.size.positive?
 
-      parsed_message.detail.marti.nodes.filter { _1.name == "dest" }.size.positive?
+      parsed_message.detail.marti.nodes.filter { it.name == "dest" }.size.positive?
     end
 
     def marti_dest_uids
       return unless marti?
 
-      parsed_message.detail.marti.nodes.filter { _1.name == "dest" }.map { _1.attributes[:uid] }
+      parsed_message.detail.marti.nodes.filter { it.name == "dest" }.map { it.attributes[:uid] }
     end
 
     def contact
