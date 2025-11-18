@@ -23,8 +23,6 @@ COPY . /app
 
 ##############
 # Stage: Final
-LABEL org.opencontainers.image.source=https://github.com/pusewicz/ruby-tak
-
 FROM ruby:$RUBY_VERSION-alpine
 
 # Add user
