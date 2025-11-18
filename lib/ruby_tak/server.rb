@@ -128,7 +128,7 @@ module RubyTAK
 
       if (dest_uids = message.marti_dest_uids)
         dest_uids.each do |uid|
-          dest_client = @clients_mutex.synchronize { @clients.find { _1.uid == uid } }
+          dest_client = @clients_mutex.synchronize { @clients.find { it.uid == uid } }
           next unless dest_client
 
           logger.debug("SEND: MARTI: #{dest_client.uid} <- #{message} FROM #{client.uid}")
