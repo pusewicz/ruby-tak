@@ -18,6 +18,7 @@ module RubyTAK
       @remote_addr = socket.peeraddr.last
       @uid = "__ANONYMOUS-#{SecureRandom.hex(6)}-#{@remote_addr}"
       @last_activity_at = Time.now
+      @buffer = String.new
     end
 
     def write(data)
@@ -32,6 +33,19 @@ module RubyTAK
       @callsign = event.contact.attributes[:callsign]
       @group = event.group.attributes[:name]
       @uid = event.attributes[:uid]
+    end
+
+    def extract_messages(data)
+      @buffer << data
+      messages = []
+
+      # Extract complete messages (ending with </event> or </auth>)
+      while (match = @buffer.match(%r{(.*?</(?:event|auth)>)}m))
+        messages << match[1]
+        @buffer = match.post_match
+      end
+
+      messages
     end
   end
 end

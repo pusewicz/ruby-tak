@@ -10,7 +10,7 @@ module RubyTAK
       "piotr" => "password"
     }.freeze
 
-    MAX_CONNECTIONS = 100
+    MAX_CONNECTIONS = 200
     CONNECTION_TIMEOUT = 300 # seconds
 
     attr_reader :logger
@@ -23,6 +23,7 @@ module RubyTAK
       @port = RubyTAK.configuration.cot_ssl_port
       @logger = logger
       @clients = ::Set.new
+      @clients_mutex = Mutex.new
       logger.info("Starting #{self.class.name} v#{RubyTAK::VERSION} on port #{@port}")
       @server = TCPServer.new("0.0.0.0", @port)
     end
@@ -44,33 +45,42 @@ module RubyTAK
         loop do
           sleep 30
           now = Time.now
-          @clients.select { |c| now - c.last_activity_at > CONNECTION_TIMEOUT }.each do |c|
+          timed_out = @clients_mutex.synchronize do
+            @clients.select { |c| now - c.last_activity_at > CONNECTION_TIMEOUT }
+          end
+          timed_out.each do |c|
             logger.warn("TIMEOUT: #{c.uid}")
             handle_disconnect(c)
-            c.close rescue nil
+            begin
+              c.close
+            rescue StandardError
+              nil
+            end
           end
         end
       end
     end
 
     def handle_accept(socket)
-      if @clients.size >= MAX_CONNECTIONS
+      client_count = @clients_mutex.synchronize { @clients.size }
+      if client_count >= MAX_CONNECTIONS
         logger.warn("MAX_CONNECTIONS reached, rejecting connection")
         socket.close
         return
       end
 
       client = Client.new(socket)
-      @clients << client
-      logger.debug("Client count: #{@clients.size}")
+      @clients_mutex.synchronize { @clients << client }
+      logger.debug("Client count: #{client_count + 1}")
       Thread.start(client) do |c|
         logger.debug("ACCEPT: #{c.uid}")
         loop do
           data = c.readpartial(4096)
           c.touch
-          handle_data(c, data)
-        rescue EOFError => e
-          logger.error("EXIT: #{c.uid}, #{e.inspect}")
+          messages = c.extract_messages(data)
+          messages.each { |msg| handle_data(c, msg) }
+        rescue EOFError
+          logger.debug("Client disconnected: #{c.uid}")
           handle_disconnect(c)
           Thread.exit
         end
@@ -91,9 +101,11 @@ module RubyTAK
     end
 
     def handle_disconnect(client)
-      @clients.delete(client).tap do |result|
-        logger.info("DISCONNECT: #{client.uid}") if result
-        logger.debug("Client count: #{@clients.size}")
+      result = @clients_mutex.synchronize { @clients.delete(client) }
+      if result
+        logger.info("DISCONNECT: #{client.uid}")
+        client_count = @clients_mutex.synchronize { @clients.size }
+        logger.debug("Client count: #{client_count}")
       end
     end
 
@@ -111,7 +123,7 @@ module RubyTAK
 
       if (dest_uids = message.marti_dest_uids)
         dest_uids.each do |uid|
-          dest_client = @clients.find { _1.uid == uid }
+          dest_client = @clients_mutex.synchronize { @clients.find { _1.uid == uid } }
           next unless dest_client
 
           logger.debug("SEND: MARTI: #{dest_client.uid} <- #{message} FROM #{client.uid}")
@@ -147,7 +159,8 @@ module RubyTAK
       data = message.to_s
       logger.debug "BROADCAST: #{source_client.uid} -> #{data}"
 
-      @clients.each do |client|
+      clients_to_broadcast = @clients_mutex.synchronize { @clients.to_a }
+      clients_to_broadcast.each do |client|
         next if client == source_client
 
         client.write(data)
