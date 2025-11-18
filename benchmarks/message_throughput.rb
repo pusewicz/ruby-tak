@@ -37,8 +37,8 @@ class MessageThroughputBenchmark
         client.send_auth
         client.send_ident
         @clients << client
-        print "." if (i + 1) % 10 == 0
-      rescue => e
+        print "." if ((i + 1) % 10).zero?
+      rescue StandardError => e
         puts "\nFailed to setup client #{i + 1}: #{e.message}"
       end
     end
@@ -90,7 +90,7 @@ class MessageThroughputBenchmark
             end
             message_count += 1
             sleep interval
-          rescue => e
+          rescue StandardError => e
             puts "\nError sending message: #{e.message}"
             break
           end
@@ -139,7 +139,7 @@ class MessageThroughputBenchmark
   end
 end
 
-if __FILE__ == $0
+if __FILE__ == $PROGRAM_NAME
   num_clients = (ARGV[0] || 50).to_i
   duration = (ARGV[1] || 30).to_i
   message_rate = (ARGV[2] || 10).to_i

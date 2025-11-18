@@ -86,8 +86,9 @@ class BenchmarkRunner
   end
 
   def run_all_benchmarks
-    BENCHMARKS.each do |name, info|
+    BENCHMARKS.each_key do |name|
       next if name == "all"
+
       run_benchmark(name)
       puts "\n\n"
     end
@@ -116,7 +117,7 @@ class BenchmarkRunner
   end
 end
 
-if __FILE__ == $0
+if __FILE__ == $PROGRAM_NAME
   runner = BenchmarkRunner.new
   runner.run
 end

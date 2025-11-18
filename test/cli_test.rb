@@ -12,6 +12,7 @@ class CLITest < Minitest::Test
     # Mock Server.start to avoid actually starting the server
     RubyTAK::Server.stub :start, nil do
       @cli.run(["server", "--port", "9999"])
+
       assert_equal 9999, RubyTAK.configuration.cot_ssl_port
     end
   end
@@ -19,6 +20,7 @@ class CLITest < Minitest::Test
   def test_port_option_short_form
     RubyTAK::Server.stub :start, nil do
       @cli.run(["server", "-p", "7777"])
+
       assert_equal 7777, RubyTAK.configuration.cot_ssl_port
     end
   end
@@ -34,6 +36,7 @@ class CLITest < Minitest::Test
   def test_server_without_port_uses_default
     RubyTAK::Server.stub :start, nil do
       @cli.run(["server"])
+
       assert_equal 8089, RubyTAK.configuration.cot_ssl_port
     end
   end

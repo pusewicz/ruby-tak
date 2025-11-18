@@ -32,8 +32,8 @@ class ConcurrentConnectionsBenchmark
         begin
           client.connect
           @clients << client
-          print "." if (i + 1) % 10 == 0
-        rescue => e
+          print "." if ((i + 1) % 10).zero?
+        rescue StandardError => e
           puts "\nFailed to connect client #{i + 1}: #{e.message}"
         end
       end
@@ -110,7 +110,7 @@ class ConcurrentConnectionsBenchmark
     puts "Total bytes sent: #{format_bytes(total_stats[:bytes_sent])}"
     puts "Total bytes received: #{format_bytes(total_stats[:bytes_received])}"
     puts "Total errors: #{total_stats[:errors]}"
-    puts "Messages/second: #{(total_stats[:messages_sent] / total_time).round(2)}" if total_time > 0
+    puts "Messages/second: #{(total_stats[:messages_sent] / total_time).round(2)}" if total_time.positive?
     puts "=" * 80
   end
 
@@ -125,7 +125,7 @@ class ConcurrentConnectionsBenchmark
   end
 end
 
-if __FILE__ == $0
+if __FILE__ == $PROGRAM_NAME
   num_clients = (ARGV[0] || 100).to_i
   host = ARGV[1] || "localhost"
   port = (ARGV[2] || 8089).to_i

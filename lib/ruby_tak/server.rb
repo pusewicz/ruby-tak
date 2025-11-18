@@ -79,7 +79,7 @@ module RubyTAK
           c.touch
           messages = c.extract_messages(data)
           messages.each { |msg| handle_data(c, msg) }
-        rescue EOFError, Errno::ECONNRESET, IOError
+        rescue IOError, Errno::ECONNRESET
           logger.debug("Client disconnected: #{c.uid}")
           handle_disconnect(c)
           Thread.exit
@@ -104,10 +104,14 @@ module RubyTAK
       result, client_count = @clients_mutex.synchronize do
         [@clients.delete(client), @clients.size]
       end
-      if result
-        logger.info("DISCONNECT: #{client.uid}")
-        logger.debug("Client count: #{client_count}")
-        client.close rescue nil
+      return unless result
+
+      logger.info("DISCONNECT: #{client.uid}")
+      logger.debug("Client count: #{client_count}")
+      begin
+        client.close
+      rescue StandardError
+        nil
       end
     end
 

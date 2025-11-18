@@ -18,7 +18,7 @@ module RubyTAK
       @remote_addr = socket.peeraddr.last
       @uid = "__ANONYMOUS-#{SecureRandom.hex(6)}-#{@remote_addr}"
       @last_activity_at = Time.now
-      @buffer = String.new
+      @buffer = +""
     end
 
     def write(data)

@@ -25,14 +25,18 @@ class BenchmarkClient
     @socket = TCPSocket.new(@host, @port)
     @running = true
     start_reader
-  rescue StandardError => e
+  rescue StandardError
     @stats[:errors] += 1
     raise
   end
 
   def disconnect
     @running = false
-    @socket&.close rescue nil
+    begin
+      @socket&.close
+    rescue StandardError
+      nil
+    end
     @reader_thread&.join(5) # Wait up to 5 seconds for reader thread to exit
   end
 
@@ -101,7 +105,7 @@ class BenchmarkClient
     @socket.write(data)
     @stats[:messages_sent] += 1
     @stats[:bytes_sent] += data.bytesize
-  rescue StandardError => e
+  rescue StandardError
     @stats[:errors] += 1
     raise
   end
@@ -113,11 +117,11 @@ class BenchmarkClient
           data = @socket.readpartial(4096)
           @stats[:messages_received] += data.scan(%r{</event>|</auth>}).size
           @stats[:bytes_received] += data.bytesize
-        rescue EOFError, IOError, Errno::EBADF
-          # Normal disconnect or socket closed
+        rescue IOError, Errno::EBADF
+          # Normal disconnect or socket closed (IOError includes EOFError)
           @running = false
           break
-        rescue StandardError => e
+        rescue StandardError
           # Actual error
           @stats[:errors] += 1
           @running = false
