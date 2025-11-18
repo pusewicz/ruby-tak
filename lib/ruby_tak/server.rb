@@ -101,10 +101,11 @@ module RubyTAK
     end
 
     def handle_disconnect(client)
-      result = @clients_mutex.synchronize { @clients.delete(client) }
+      result, client_count = @clients_mutex.synchronize do
+        [@clients.delete(client), @clients.size]
+      end
       if result
         logger.info("DISCONNECT: #{client.uid}")
-        client_count = @clients_mutex.synchronize { @clients.size }
         logger.debug("Client count: #{client_count}")
       end
     end
