@@ -39,10 +39,6 @@ module RubyTAK
       parsed_message.detail.marti.nodes.filter { _1.name == "dest" }.map { _1.attributes[:uid] }
     end
 
-    def attributes
-      parsed_message.attributes
-    end
-
     def contact
       return unless parsed_message.respond_to?(:detail)
       return unless parsed_message.detail.respond_to?(:contact)
