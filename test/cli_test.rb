@@ -210,4 +210,29 @@ class CLITest < Minitest::Test
       end
     end
   end
+
+  def test_invalid_command_shows_error_and_exits
+    error = nil
+
+    capture_io do
+      error = assert_raises(SystemExit) do
+        @cli.run(["invalid_command"])
+      end
+    end
+
+    assert_equal 1, error.status
+  end
+
+  def test_invalid_command_shows_help_message
+    output = capture_io do
+      assert_raises(SystemExit) do
+        @cli.run(["invalid_command"])
+      end
+    end
+
+    assert_match(/Error: Unknown command 'invalid_command'/, output[0])
+    assert_match(/Usage: ruby_tak/, output[0])
+    assert_match(/Subcommands:/, output[0])
+    assert_match(/server/, output[0])
+  end
 end
