@@ -56,8 +56,7 @@ module RubyTAK
         when "ca"
           generate_ca_certificate
         when "server"
-          puts "Server certificate generation not yet implemented"
-          exit 1
+          generate_server_certificate
         else
           puts "Error: Unknown certificate type '#{cert_type}'"
           puts "Usage: ruby_tak certificate <ca|server>"
@@ -118,6 +117,77 @@ module RubyTAK
       puts "CA certificate generated successfully:"
       puts "  Key: #{ca_key_path}"
       puts "  Certificate: #{ca_crt_path}"
+    end
+
+    def generate_server_certificate
+      require "openssl"
+
+      config = RubyTAK.configuration
+      ca_key_path = config.ca_key_path
+      ca_crt_path = config.ca_crt_path
+      server_key_path = config.server_key_path
+      server_crt_path = config.server_crt_path
+
+      # Verify CA exists
+      unless ca_key_path.exist? && ca_crt_path.exist?
+        puts "Error: CA certificate not found. Generate CA first with:"
+        puts "  ruby_tak certificate ca"
+        exit 1
+      end
+
+      if server_key_path.exist? && server_crt_path.exist?
+        puts "Server certificate already exists at:"
+        puts "  Key: #{server_key_path}"
+        puts "  Certificate: #{server_crt_path}"
+        puts "\nSkipping generation. Delete existing files to regenerate."
+        return
+      end
+
+      puts "Generating server certificate..."
+
+      # Load CA certificate and key
+      ca_key = OpenSSL::PKey::RSA.new(File.read(ca_key_path))
+      ca_cert = OpenSSL::X509::Certificate.new(File.read(ca_crt_path))
+
+      # Generate RSA key (2048-bit for TAK compatibility)
+      server_key = OpenSSL::PKey::RSA.new(2048)
+
+      # Create certificate
+      server_cert = OpenSSL::X509::Certificate.new
+      server_cert.version = 2
+      server_cert.serial = OpenSSL::BN.rand(64).to_i # Random 64-bit serial
+      server_cert.subject = OpenSSL::X509::Name.parse("/CN=#{config.hostname}/O=RubyTAK/C=US")
+      server_cert.issuer = ca_cert.subject
+      server_cert.public_key = server_key.public_key
+      server_cert.not_before = Time.now
+      server_cert.not_after = Time.now + (365 * 24 * 60 * 60 * 2) # 2 years (730 days)
+
+      # Add extensions for server certificate
+      ef = OpenSSL::X509::ExtensionFactory.new
+      ef.subject_certificate = server_cert
+      ef.issuer_certificate = ca_cert
+      server_cert.add_extension(ef.create_extension("basicConstraints", "CA:FALSE", true))
+      server_cert.add_extension(ef.create_extension("keyUsage", "digitalSignature,keyEncipherment", true))
+      server_cert.add_extension(
+        ef.create_extension("extendedKeyUsage", "serverAuth,clientAuth", false)
+      )
+      server_cert.add_extension(ef.create_extension("subjectKeyIdentifier", "hash", false))
+      server_cert.add_extension(ef.create_extension("authorityKeyIdentifier", "keyid:always", false))
+      server_cert.add_extension(
+        ef.create_extension("subjectAltName", "DNS:#{config.hostname},IP:127.0.0.1", false)
+      )
+
+      # Sign certificate with CA
+      server_cert.sign(ca_key, OpenSSL::Digest.new("SHA256"))
+
+      # Save PEM files
+      File.write(server_key_path, server_key.to_pem)
+      File.chmod(0o600, server_key_path)
+      File.write(server_crt_path, server_cert.to_pem)
+
+      puts "Server certificate generated successfully:"
+      puts "  Key: #{server_key_path}"
+      puts "  Certificate: #{server_crt_path}"
     end
   end
 end

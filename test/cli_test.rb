@@ -109,15 +109,105 @@ class CLITest < Minitest::Test
     assert_match(/Unknown certificate type 'invalid'/, output[0])
   end
 
-  def test_certificate_server_not_implemented
-    error = nil
-    output = capture_io do
-      error = assert_raises(SystemExit) do
-        @cli.run(%w[certificate server])
+  def test_certificate_server_requires_ca
+    Dir.mktmpdir do |tmpdir|
+      config = RubyTAK.configuration
+      config.stub :certs_dir, Pathname.new(tmpdir) do
+        error = nil
+        output = capture_io do
+          error = assert_raises(SystemExit) do
+            @cli.run(%w[certificate server])
+          end
+        end
+
+        assert_equal 1, error.status
+        assert_match(/CA certificate not found/, output[0])
       end
     end
+  end
 
-    assert_equal 1, error.status
-    assert_match(/not yet implemented/, output[0])
+  def test_certificate_server_generates_files
+    Dir.mktmpdir do |tmpdir|
+      config = RubyTAK.configuration
+      config.stub :certs_dir, Pathname.new(tmpdir) do
+        # Generate CA first
+        capture_io { @cli.run(%w[certificate ca]) }
+
+        server_key_path = Pathname.new(tmpdir).join(config.server_key)
+        server_crt_path = Pathname.new(tmpdir).join(config.server_crt)
+
+        capture_io do
+          @cli.run(%w[certificate server])
+        end
+
+        assert_predicate server_key_path, :exist?
+        assert_predicate server_crt_path, :exist?
+        assert_equal 0o100600, server_key_path.stat.mode
+      end
+    end
+  end
+
+  def test_certificate_server_generates_valid_x509
+    Dir.mktmpdir do |tmpdir|
+      config = RubyTAK.configuration
+      config.stub :certs_dir, Pathname.new(tmpdir) do
+        # Generate CA first
+        capture_io { @cli.run(%w[certificate ca]) }
+
+        server_crt_path = Pathname.new(tmpdir).join(config.server_crt)
+
+        capture_io do
+          @cli.run(%w[certificate server])
+        end
+
+        # Verify certificate is valid X.509
+        cert = OpenSSL::X509::Certificate.new(File.read(server_crt_path))
+
+        assert_equal config.hostname, cert.subject.to_a.find { |attr| attr[0] == "CN" }[1]
+      end
+    end
+  end
+
+  def test_certificate_server_signed_by_ca
+    Dir.mktmpdir do |tmpdir|
+      config = RubyTAK.configuration
+      config.stub :certs_dir, Pathname.new(tmpdir) do
+        # Generate CA first
+        capture_io { @cli.run(%w[certificate ca]) }
+
+        ca_crt_path = Pathname.new(tmpdir).join(config.ca_crt)
+        server_crt_path = Pathname.new(tmpdir).join(config.server_crt)
+
+        capture_io do
+          @cli.run(%w[certificate server])
+        end
+
+        # Verify certificate chain
+        ca_cert = OpenSSL::X509::Certificate.new(File.read(ca_crt_path))
+        server_cert = OpenSSL::X509::Certificate.new(File.read(server_crt_path))
+
+        assert_equal ca_cert.subject.to_s, server_cert.issuer.to_s
+      end
+    end
+  end
+
+  def test_certificate_server_skips_if_exists
+    Dir.mktmpdir do |tmpdir|
+      config = RubyTAK.configuration
+      config.stub :certs_dir, Pathname.new(tmpdir) do
+        # Generate CA first
+        capture_io { @cli.run(%w[certificate ca]) }
+
+        # Generate once
+        capture_io { @cli.run(%w[certificate server]) }
+
+        # Try to generate again
+        output = capture_io do
+          @cli.run(%w[certificate server])
+        end
+
+        assert_match(/already exists/, output[0])
+      end
+    end
   end
 end
