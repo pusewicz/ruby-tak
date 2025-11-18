@@ -42,3 +42,6 @@ Metrics/PerceivedComplexity:
 
 Metrics/ClassLength:
   Enabled: false
+
+Minitest/MultipleAssertions:
+  Max: 5

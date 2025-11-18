@@ -44,7 +44,18 @@ module RubyTAK
 
       global.order!(args)
       command = args.shift
-      subcommands[command]&.order!(args)
+
+      unless subcommands.key?(command)
+        puts "Error: Unknown command '#{command}'\n\n"
+        puts global
+        puts "\nSubcommands:"
+        subcommands.each do |name, subcommand|
+          puts "  #{name}\t#{subcommand.banner}"
+        end
+        exit 1
+      end
+
+      subcommands[command].order!(args)
 
       case command
       when "server"
