@@ -5,12 +5,14 @@ require "optparse"
 module RubyTAK
   class CLI
     def run(args = ARGV)
+      options = {}
+
       subcommands = {
         "server" => OptionParser.new do |opts|
           opts.banner = "Usage: ruby_tak server [options]"
 
-          opts.on("-p", "--port PORT", "Port to listen on") do |port|
-            puts port
+          opts.on("-p", "--port PORT", Integer, "Port to listen on") do |port|
+            options[:port] = port
           end
         end
       }
@@ -37,12 +39,13 @@ module RubyTAK
 
       args.unshift("-h") if args.empty?
 
-      global.order!
+      global.order!(args)
       command = args.shift
-      subcommands[command]&.order!
+      subcommands[command]&.order!(args)
 
       case command
       when "server"
+        RubyTAK.configuration.cot_ssl_port = options[:port] if options[:port]
         RubyTAK::Server.start
       end
     end
