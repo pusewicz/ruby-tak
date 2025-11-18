@@ -79,7 +79,7 @@ module RubyTAK
           c.touch
           messages = c.extract_messages(data)
           messages.each { |msg| handle_data(c, msg) }
-        rescue EOFError
+        rescue EOFError, Errno::ECONNRESET, IOError
           logger.debug("Client disconnected: #{c.uid}")
           handle_disconnect(c)
           Thread.exit
@@ -107,6 +107,7 @@ module RubyTAK
       if result
         logger.info("DISCONNECT: #{client.uid}")
         logger.debug("Client count: #{client_count}")
+        client.close rescue nil
       end
     end
 
@@ -128,7 +129,12 @@ module RubyTAK
           next unless dest_client
 
           logger.debug("SEND: MARTI: #{dest_client.uid} <- #{message} FROM #{client.uid}")
-          dest_client.write(message.to_xml)
+          begin
+            dest_client.write(message.to_xml)
+          rescue Errno::EPIPE, Errno::ECONNRESET, IOError, Timeout::Error => e
+            logger.debug("Write failed to #{dest_client.uid}: #{e.class}")
+            handle_disconnect(dest_client)
+          end
         end
       else
         broadcast(message, client)
@@ -151,9 +157,13 @@ module RubyTAK
     end
 
     def handle_ping(client, _ping)
-      message = MessageBuilder.pong.to_s
       logger.debug("PONG: #{client.uid}")
-      client.write(message)
+      begin
+        client.write(MessageBuilder.pong.to_s)
+      rescue Errno::EPIPE, Errno::ECONNRESET, IOError, Timeout::Error => e
+        logger.debug("Write failed to #{client.uid}: #{e.class}")
+        handle_disconnect(client)
+      end
     end
 
     def broadcast(message, source_client)
@@ -164,7 +174,12 @@ module RubyTAK
       clients_to_broadcast.each do |client|
         next if client == source_client
 
-        client.write(data)
+        begin
+          client.write(data)
+        rescue Errno::EPIPE, Errno::ECONNRESET, IOError, Timeout::Error => e
+          logger.debug("Write failed to #{client.uid}: #{e.class}")
+          handle_disconnect(client)
+        end
       end
     end
   end
