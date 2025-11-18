@@ -1,7 +1,5 @@
 ARG RUBY_VERSION=3.3.6
 
-LABEL org.opencontainers.image.source=https://github.com/pusewicz/ruby-tak
-
 ################
 # Stage: Builder
 FROM ruby:$RUBY_VERSION-alpine AS builder
@@ -25,6 +23,8 @@ COPY . /app
 
 ##############
 # Stage: Final
+LABEL org.opencontainers.image.source=https://github.com/pusewicz/ruby-tak
+
 FROM ruby:$RUBY_VERSION-alpine
 
 # Add user
