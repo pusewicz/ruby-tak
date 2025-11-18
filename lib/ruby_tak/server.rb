@@ -2,7 +2,6 @@
 
 require "ox"
 require "socket"
-require "forwardable"
 
 module RubyTAK
   class Server

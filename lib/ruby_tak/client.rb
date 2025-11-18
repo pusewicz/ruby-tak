@@ -4,10 +4,6 @@ require "timeout"
 
 module RubyTAK
   class Client
-    extend Forwardable
-
-    def_delegators :@socket, :readpartial, :close
-
     attr_accessor :uid, :username
     attr_reader :remote_addr, :callsign, :group, :last_activity_at
 
@@ -21,8 +17,16 @@ module RubyTAK
       @buffer = +""
     end
 
+    def readpartial(maxlen)
+      @socket.readpartial(maxlen)
+    end
+
     def write(data)
       Timeout.timeout(WRITE_TIMEOUT) { @socket.write(data) }
+    end
+
+    def close
+      @socket.close
     end
 
     def touch
