@@ -44,20 +44,18 @@ module RubyTAK
 
     private
 
-    def build_point
-      Ox::Element.new("point").tap do |e|
-        @point.each do |k, v|
-          e[k] = v
-        end
+    def build_element(name, attributes)
+      Ox::Element.new(name).tap do |e|
+        attributes.each { |k, v| e[k] = v }
       end
     end
 
+    def build_point
+      build_element("point", @point)
+    end
+
     def build_detail
-      Ox::Element.new("detail").tap do |e|
-        @detail.each do |k, v|
-          e[k] = v
-        end
-      end
+      build_element("detail", @detail)
     end
 
     def ox_document
