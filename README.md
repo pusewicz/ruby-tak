@@ -41,4 +41,4 @@ Install dependencies:
     
 Run tests:
 
-    bundle exec rake tests
+    ./bin/rake test
