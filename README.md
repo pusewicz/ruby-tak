@@ -42,3 +42,7 @@ Install dependencies:
 Run tests:
 
     ./bin/rake test
+
+Verify Rubocop:
+
+    ./bin/rake rubocop
