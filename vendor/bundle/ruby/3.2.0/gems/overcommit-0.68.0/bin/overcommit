@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Check if Overcommit should invoke a Bundler context for loading gems
+require 'yaml'
+if gemfile = YAML.load_file('.overcommit.yml')['gemfile'] rescue nil
+  ENV['BUNDLE_GEMFILE'] = gemfile
+  require 'bundler'
+
+  begin
+    # We need to temporarily silence STDERR to remove annoying Gem specification
+    # warnings that ultimately don't matter, e.g.
+    # https://github.com/rubygems/rubygems/issues/1070
+    old_stderr = $stderr
+    begin
+      $stderr = File.new(File::NULL, 'w')
+      Bundler.setup
+    ensure
+      $stderr = old_stderr
+    end
+  rescue Bundler::BundlerError => e
+    puts "Problem loading '#{gemfile}': #{e.message}"
+    puts "Try running:\nbundle install --gemfile=#{gemfile}" if e.is_a?(Bundler::GemNotFound)
+    exit 78 # EX_CONFIG
+  rescue Gem::LoadError => e
+    # Handle case where user is executing overcommit without `bundle exec` and
+    # whose local Gemfile has a gem requirement that does not match a gem
+    # requirement of the installed version of Overcommit.
+    raise unless e.message =~ /already activated/i
+
+    exec('bundle', 'exec', $0, *ARGV)
+  end
+end
+
+begin
+  require 'overcommit/cli'
+rescue LoadError
+  if gemfile
+    puts 'You have specified the `gemfile` option in your Overcommit ' \
+         'configuration but have not added the `overcommit` gem to ' \
+         "#{gemfile}."
+  else
+    raise
+  end
+
+  exit 64 # EX_USAGE
+end
+
+logger = Overcommit::Logger.new(STDOUT)
+
+Overcommit::CLI.new(ARGV, STDIN, logger).run

@@ -1,0 +1,19 @@
+#!/bin/sh
+# Indexes all tags for this repository for easy navigation with Vim, storing the
+# file in <repo>/.git/tags. If you're using Fugitive.vim, you'll automatically
+# have access to the tags file; otherwise you'll have to modify your `tags`
+# option in your vimrc to search the generated file.
+
+set -e
+
+dir="`git rev-parse --git-dir`"
+
+trap "rm -f $dir/tags.$$" EXIT
+err_file=$dir/ctags.err
+if ctags --tag-relative -Rf$dir/tags.$$ --exclude=.git "$@" 2>${err_file}; then
+  mv $dir/tags.$$ $dir/tags
+  [ -e ${err_file} ] && rm -f ${err_file}
+else
+  # Ignore STDERR unless `ctags` returned a non-zero exit code
+  cat ${err_file}
+fi
