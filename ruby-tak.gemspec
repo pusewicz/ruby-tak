@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "logger", "~> 1.7"
   spec.add_dependency "ox", "~> 2.14"
+  spec.add_dependency "rqrcode_core", "~> 2.0"
   spec.add_dependency "xdg", "~> 10.0"
   spec.add_dependency "zeitwerk", "~> 2.8"
 

@@ -5,6 +5,7 @@ require "zeitwerk"
 loader = Zeitwerk::Loader.for_gem
 loader.inflector.inflect("ruby_tak" => "RubyTAK")
 loader.inflector.inflect("cli" => "CLI")
+loader.inflector.inflect("qr_code" => "QRCode")
 loader.setup
 
 require "ox"

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `ruby_tak qr` prints a QR code for iTAK's quick-connect (**Add Server → QR**),
+  so a server can be added without typing hostname/port by hand. The client
+  certificate still needs to be imported separately.
+
 ## [1.1.0] - 2026-09-15
 
 ### Changed

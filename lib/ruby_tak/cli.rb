@@ -17,6 +17,13 @@ module RubyTAK
         end,
         "certificate" => OptionParser.new do |opts|
           opts.banner = "Usage: ruby_tak certificate <ca|server> [options]"
+        end,
+        "qr" => OptionParser.new do |opts|
+          opts.banner = "Usage: ruby_tak qr [options]"
+
+          opts.on("--name NAME", "Server name shown in the client") { |name| options[:name] = name }
+          opts.on("--host HOST", "Hostname or IP clients connect to") { |host| options[:host] = host }
+          opts.on("-p", "--port PORT", Integer, "Port clients connect to") { |port| options[:port] = port }
         end
       }
 
@@ -73,6 +80,8 @@ module RubyTAK
           puts "Usage: ruby_tak certificate <ca|server>"
           exit 1
         end
+      when "qr"
+        generate_qr_code(options)
       end
     end
 
@@ -199,6 +208,26 @@ module RubyTAK
       puts "Server certificate generated successfully:"
       puts "  Key: #{server_key_path}"
       puts "  Certificate: #{server_crt_path}"
+    end
+
+    def generate_qr_code(options)
+      config = RubyTAK.configuration
+      config.cot_ssl_port = options[:port] if options[:port]
+
+      name = options[:name] || config.hostname
+      host = options[:host] || config.hostname
+
+      if name.include?(",") || host.include?(",")
+        puts "Error: name and host must not contain commas"
+        exit 1
+      end
+
+      payload = "#{name},#{host},#{config.cot_ssl_port},ssl"
+
+      puts QRCode.new(payload).to_terminal
+      puts "\n#{payload}\n\n"
+      puts "Scan in iTAK: Add Server -> QR"
+      puts "You must still import the client certificate into iTAK separately."
     end
   end
 end

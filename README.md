@@ -9,10 +9,10 @@ RubyTAK—TAK server written in Ruby
     ./bin/setup
     ./exe/ruby_tak certificate ca
     ./exe/ruby_tak certificate server
-    ./exe/ruby_tak client
+    ./exe/ruby_tak qr
     ./exe/ruby_tak server
 
-Load the generated `client.zip` data package into iTAK to connect to the server ([instructions](https://atakhq.com/en/itak/setup-guide#data-package-method)).
+Scan the QR code in iTAK (**Add Server → QR**) to add the server connection, then import the client certificate into iTAK separately.
 
 ## Development
 

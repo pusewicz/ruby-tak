@@ -181,6 +181,7 @@ lib/ruby_tak/
   client.rb        # Client connection wrapper
   message.rb       # Message parsing/handling
   configuration.rb # App configuration
+  qr_code.rb       # Terminal QR code rendering
 
 test/
   *_test.rb       # Minitest tests

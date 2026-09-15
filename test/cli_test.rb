@@ -253,4 +253,40 @@ class CLITest < Minitest::Test
     assert_match(/Subcommands:/, output[0])
     assert_match(/server/, output[0])
   end
+
+  def test_qr_uses_hostname_and_default_port
+    output = capture_io { @cli.run(%w[qr]) }
+
+    assert_match(/#{RubyTAK.configuration.hostname},#{RubyTAK.configuration.hostname},8089,ssl/, output[0])
+  end
+
+  def test_qr_uses_given_host_and_port
+    output = capture_io { @cli.run(%w[qr --host tak.example.com --port 9000]) }
+
+    assert_match(/tak\.example\.com,9000,ssl/, output[0])
+  end
+
+  def test_qr_uses_given_name
+    output = capture_io { @cli.run(%w[qr --name Alpha]) }
+
+    assert_match(/Alpha,/, output[0])
+  end
+
+  def test_qr_renders_block_characters
+    output = capture_io { @cli.run(%w[qr]) }
+
+    assert_match(/█/, output[0])
+  end
+
+  def test_qr_rejects_comma_in_name
+    error = nil
+    output = capture_io do
+      error = assert_raises(SystemExit) do
+        @cli.run(["qr", "--name", "a,b"])
+      end
+    end
+
+    assert_equal 1, error.status
+    assert_match(/must not contain commas/, output[0])
+  end
 end
