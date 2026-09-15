@@ -100,6 +100,30 @@ class ServerTest < Minitest::Test
     mock_socket.verify
   end
 
+  def test_handle_auth_missing_cot
+    server = create_server
+    mock_socket = Minitest::Mock.new
+    mock_socket.expect :peeraddr, ["AF_INET", 12_345, "localhost", "127.0.0.1"]
+    mock_socket.expect :close, nil
+    mock_socket.expect :close, nil
+
+    client = RubyTAK::Client.new(mock_socket)
+    server.instance_variable_get(:@clients_mutex).synchronize do
+      server.instance_variable_get(:@clients) << client
+    end
+
+    message = RubyTAK::Message.new("<auth></auth>")
+
+    server.send(:handle_auth, client, message)
+
+    clients = server.instance_variable_get(:@clients_mutex).synchronize do
+      server.instance_variable_get(:@clients).to_a
+    end
+
+    assert_empty clients
+    mock_socket.verify
+  end
+
   def test_handle_ping
     server = create_server
     mock_socket = Minitest::Mock.new
