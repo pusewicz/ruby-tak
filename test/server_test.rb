@@ -769,14 +769,22 @@ class ServerTest < Minitest::Test
 
         config.stub :cot_ssl_port, 0 do
           server = RubyTAK::Server.new(logger: @logger)
-          port = server.instance_variable_get(:@server).addr[1]
+          tcp_server = server.instance_variable_get(:@server)
+          port = tcp_server.addr[1]
           server_thread = Thread.new { server.start }
+          server_thread.report_on_exception = false
           sleep 0.1
 
           begin
             yield server, port
           ensure
+            tcp_server.close
             server_thread.kill
+            begin
+              server_thread.join(1)
+            rescue StandardError
+              nil
+            end
           end
         end
       end
