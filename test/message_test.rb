@@ -41,4 +41,11 @@ class MessageTest < Minitest::Test
 
     assert_predicate message, :ping?
   end
+
+  def test_malformed_xml
+    message = RubyTAK::Message.new("<invalid_xml>")
+
+    assert_equal "error", message.name
+    assert_match(/invalid format/, message.attributes[:error])
+  end
 end
