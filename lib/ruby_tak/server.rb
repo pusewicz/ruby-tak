@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "openssl"
 require "ox"
 require "socket"
 
@@ -33,7 +34,7 @@ module RubyTAK
       start_connection_watchdog
       loop do
         socket = @server.accept
-        handle_accept(socket)
+        accept_connection(socket)
       end
     end
 
@@ -57,6 +58,45 @@ module RubyTAK
             end
           end
         end
+      end
+    end
+
+    def accept_connection(socket)
+      client_count = @clients_mutex.synchronize { @clients.size }
+      if client_count >= MAX_CONNECTIONS
+        logger.warn("MAX_CONNECTIONS reached, rejecting connection")
+        socket.close
+        return
+      end
+
+      Thread.start(socket) do |raw_socket|
+        ssl_socket = OpenSSL::SSL::SSLSocket.new(raw_socket, ssl_context)
+        ssl_socket.sync_close = true
+
+        begin
+          ssl_socket.accept
+        rescue OpenSSL::SSL::SSLError => e
+          logger.debug("TLS handshake failed: #{e.class} #{e.message}")
+          raw_socket.close
+          Thread.exit
+        rescue IOError, Errno::ECONNRESET => e
+          logger.debug("Connection closed during TLS handshake: #{e.class}")
+          raw_socket.close
+          Thread.exit
+        end
+
+        handle_accept(ssl_socket)
+      end
+    end
+
+    def ssl_context
+      @ssl_context ||= begin
+        config = RubyTAK.configuration
+        context = OpenSSL::SSL::SSLContext.new
+        context.cert = OpenSSL::X509::Certificate.new(File.read(config.server_crt_path))
+        context.key = OpenSSL::PKey::RSA.new(File.read(config.server_key_path))
+        context.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        context
       end
     end
 

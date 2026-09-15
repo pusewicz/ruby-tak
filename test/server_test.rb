@@ -40,7 +40,7 @@ class ServerTest < Minitest::Test
     @mock_tcp_server.expect(:accept, nil) { raise StopIteration }
 
     accepted = []
-    server.stub(:handle_accept, ->(socket) { accepted << socket }) do
+    server.stub(:accept_connection, ->(socket) { accepted << socket }) do
       server.stub(:start_connection_watchdog, nil) do
         server.start
       end
