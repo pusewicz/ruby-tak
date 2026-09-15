@@ -1,3 +1,12 @@
+PATH
+  remote: .
+  specs:
+    ruby_tak (0.0.1)
+      logger (~> 1.7)
+      ox (~> 2.14)
+      xdg (~> 10.0)
+      zeitwerk (~> 2.8)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -101,19 +110,16 @@ PLATFORMS
 
 DEPENDENCIES
   debug
-  logger
   minitest
   minitest-mock
   overcommit
-  ox
   rake
   rubocop
   rubocop-minitest
   rubocop-performance
   rubocop-rake
+  ruby_tak!
   simplecov
-  xdg
-  zeitwerk
 
 BUNDLED WITH
    2.7.2

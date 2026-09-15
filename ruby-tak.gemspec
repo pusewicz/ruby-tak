@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = "Ruby TAK server"
   spec.homepage = "https://github.com/pusewicz/ruby-tak"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.4"
+  spec.required_ruby_version = ">= 4.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/pusewicz/ruby-tak"
@@ -29,8 +29,10 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  # Uncomment to register a new dependency of your gem
-  # spec.add_dependency "example-gem", "~> 1.0"
+  spec.add_dependency "logger", "~> 1.7"
+  spec.add_dependency "ox", "~> 2.14"
+  spec.add_dependency "xdg", "~> 10.0"
+  spec.add_dependency "zeitwerk", "~> 2.8"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
