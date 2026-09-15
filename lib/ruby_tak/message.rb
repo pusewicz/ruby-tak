@@ -76,13 +76,7 @@ module RubyTAK
 
     def parsed_message
       @parsed_message ||= begin
-        message = MessageParser.parse(to_s)
-
-        if message.respond_to?(:root)
-          message.root
-        else
-          message
-        end
+        MessageParser.parse(to_s)
       rescue Ox::Error => e
         NullMessage.new("error", { error: e.message }, [], nil, nil)
       end

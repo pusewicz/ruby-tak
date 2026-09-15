@@ -59,6 +59,21 @@ class ConfigurationTest < Minitest::Test
     assert_path_equal("certs/ruby_tak-server.key", configuration.server_key_path)
   end
 
+  def test_server_p12_default
+    assert_equal "ruby_tak-server.p12", configuration.server_p12
+  end
+
+  def test_server_p12_path
+    assert_path_equal("certs/ruby_tak-server.p12", configuration.server_p12_path)
+  end
+
+  def test_data_package_dir
+    dir = configuration.data_package_dir
+
+    assert_equal Pathname.new(File.join(Dir.home, ".local/share/ruby_tak/data_packages")), dir
+    assert_predicate dir, :directory?
+  end
+
   def test_cot_ssl_port_default
     assert_equal 8089, configuration.cot_ssl_port
   end

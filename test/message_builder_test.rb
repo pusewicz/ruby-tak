@@ -14,4 +14,10 @@ class MessageBuilderTest < Minitest::Test
 
     assert_equal message, RubyTAK::MessageBuilder.pong(now).strip
   end
+
+  def test_build_with_detail
+    xml = RubyTAK::MessageBuilder.build({ uid: "test" }, detail: { foo: "bar" })
+
+    assert_match(%r{<detail foo="bar"/>}, xml)
+  end
 end
