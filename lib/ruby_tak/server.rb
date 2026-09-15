@@ -78,8 +78,17 @@ module RubyTAK
           c.touch
           messages = c.extract_messages(data)
           messages.each { |msg| handle_data(c, msg) }
+        rescue EOFError
+          logger.debug("Client disconnected (EOF): #{c.uid}")
+          handle_disconnect(c)
+          Thread.exit
         rescue IOError, Errno::ECONNRESET
-          logger.debug("Client disconnected: #{c.uid}")
+          logger.debug("Client disconnected (RESET): #{c.uid}")
+          handle_disconnect(c)
+          Thread.exit
+        rescue StandardError => e
+          logger.error("Client error: #{c.uid} #{e.class} #{e.message}")
+          logger.error(e.backtrace.join("\n"))
           handle_disconnect(c)
           Thread.exit
         end
@@ -95,7 +104,7 @@ module RubyTAK
       when "event" then handle_event(client, message)
       when "auth" then handle_auth(client, message)
       else
-        raise "Unknown message type: #{data.inspect}"
+        logger.warn("Unknown message type: #{message.name} #{data.inspect}")
       end
     end
 
@@ -146,6 +155,13 @@ module RubyTAK
 
     def handle_auth(client, message)
       # <?xml version=\"1.0\"?>\n<auth><cot username=\"piotr\" password=\"password\" uid=\"ANDROID-82cd68af1fb8fd80\"/></auth>
+      if message.cot.nil?
+        logger.error("AUTH: #{client.uid} -> FAILED, malformed auth message (no cot)")
+        handle_disconnect(client)
+        client.close
+        return
+      end
+
       username, password, uid = message.cot.attributes.values_at(:username, :password, :uid)
 
       if USERS[username] == password

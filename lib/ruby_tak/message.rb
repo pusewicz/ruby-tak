@@ -9,6 +9,7 @@ module RubyTAK
     def_delegators :parsed_message, :name, :attributes, :nodes, :detail
 
     IDENT_KEYS = %w[__group contact takv].freeze
+    ParseError = Struct.new(:name, :attributes, :nodes, :detail, :cot)
 
     def initialize(*)
       super
@@ -80,6 +81,8 @@ module RubyTAK
         else
           message
         end
+      rescue StandardError
+        ParseError.new("error", {}, [], nil, nil)
       end
     end
   end

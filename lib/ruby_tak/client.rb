@@ -7,6 +7,7 @@ module RubyTAK
     attr_accessor :uid, :username
     attr_reader :remote_addr, :callsign, :group, :last_activity_at
 
+    MAX_BUFFER_SIZE = 1024 * 1024 # 1MB
     WRITE_TIMEOUT = 5 # seconds
 
     def initialize(socket)
@@ -34,13 +35,18 @@ module RubyTAK
     end
 
     def user=(event)
-      @callsign = event.contact.attributes[:callsign]
-      @group = event.group.attributes[:name]
+      @callsign = event.contact&.attributes&.fetch(:callsign, nil)
+      @group = event.group&.attributes&.fetch(:name, nil)
       @uid = event.attributes[:uid]
     end
 
     def extract_messages(data)
       @buffer << data
+      if @buffer.size > MAX_BUFFER_SIZE
+        @buffer.clear
+        raise "Buffer overflow"
+      end
+
       messages = []
 
       # Extract complete messages (ending with </event> or </auth>)
