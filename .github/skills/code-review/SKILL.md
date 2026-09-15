@@ -9,9 +9,9 @@ Flag these issues when reviewing a pull request in this repository.
 
 ## Test coverage
 
-- CI enforces 100% line coverage (`minimum_coverage 100 if ENV["CI"]` in `test/test_helper.rb`). Any changed line without a covering test should fail review.
+- CI enforces 100% line coverage (`minimum_coverage 100 if ENV["CI"]` in `test/test_helper.rb`). Any changed executable Ruby line without a covering test should fail review (this doesn't apply to non-Ruby changes like docs or config).
 - Tests should use predicate assertions (`assert_predicate obj, :exist?` not `assert obj.exist?`).
-- Flag tests with more than 3 assertions — they should be split.
+- Flag tests with more than 5 assertions (`Minitest/MultipleAssertions` Max in `.rubocop.yml`) — they should be split.
 - File-system tests must use `Dir.mktmpdir`, not real paths.
 - Tests must stub servers/network calls (e.g. `RubyTAK::Server.stub :start, nil`), never start real listeners or make network calls.
 
