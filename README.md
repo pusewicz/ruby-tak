@@ -14,6 +14,21 @@ RubyTAK—TAK server written in Ruby
 
 Load the generated `client.zip` data package into iTAK to connect to the server ([instructions](https://atakhq.com/en/itak/setup-guide#data-package-method)).
 
+## Trusting the certificate
+
+RubyTAK signs its own certificates — there's no public CA — so each client
+needs to be told to trust `ruby_tak-ca.crt` (from
+`~/.config/ruby_tak/certs/`) before it will connect:
+
+- **macOS** (including a "Designed for iPad/iPhone" TAK app running
+  natively on Apple Silicon): open the `.crt` file in Keychain Access to
+  import it, then double-click the imported certificate and set "When
+  using this certificate" to **Always Trust**.
+- **iOS/iPadOS**: AirDrop or email `ruby_tak-ca.crt` to the device, open
+  it to install it as a configuration profile (Settings → General → VPN
+  & Device Management), then enable full trust for it under Settings →
+  General → About → Certificate Trust Settings.
+
 ## Development
 
     ./bin/setup
