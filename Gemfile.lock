@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ruby_tak (0.0.1)
+    ruby_tak (1.1.0)
       logger (~> 1.7)
       ox (~> 2.14)
       xdg (~> 10.0)
