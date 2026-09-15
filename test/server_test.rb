@@ -423,17 +423,18 @@ class ServerTest < Minitest::Test
   end
 
   def test_handle_data_with_unknown_message_type
-    server = create_server
+    log_output = StringIO.new
+    logger = Logger.new(log_output)
+    logger.level = Logger::WARN
+    server = TCPServer.stub(:new, @mock_tcp_server) { RubyTAK::Server.new(logger: logger) }
     mock_socket = Minitest::Mock.new
     mock_socket.expect :peeraddr, ["AF_INET", 12_345, "localhost", "127.0.0.1"]
 
     client = RubyTAK::Client.new(mock_socket)
     unknown_xml = "<unknown><data/></unknown>"
 
-    error = assert_raises(RuntimeError) do
-      server.send(:handle_data, client, unknown_xml)
-    end
+    server.send(:handle_data, client, unknown_xml)
 
-    assert_match(/Unknown message type/, error.message)
+    assert_match(/Unknown message type/, log_output.string)
   end
 end
