@@ -42,9 +42,10 @@ module RubyTAK
 
     def extract_messages(data)
       @buffer << data
-      if @buffer.size > MAX_BUFFER_SIZE
+      if @buffer.bytesize > MAX_BUFFER_SIZE
+        bytesize = @buffer.bytesize
         @buffer.clear
-        raise "Buffer overflow"
+        raise "Buffer overflow: #{bytesize} bytes"
       end
 
       messages = []

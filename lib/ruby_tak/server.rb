@@ -83,12 +83,12 @@ module RubyTAK
           handle_disconnect(c)
           Thread.exit
         rescue IOError, Errno::ECONNRESET
-          logger.debug("Client disconnected (RESET): #{c.uid}")
+          logger.debug("Client disconnected: #{c.uid}")
           handle_disconnect(c)
           Thread.exit
         rescue StandardError => e
           logger.error("Client error: #{c.uid} #{e.class} #{e.message}")
-          logger.error(e.backtrace.join("\n"))
+          logger.error(e.backtrace&.join("\n") || "(no backtrace)")
           handle_disconnect(c)
           Thread.exit
         end
