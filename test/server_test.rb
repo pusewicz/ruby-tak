@@ -50,6 +50,44 @@ class ServerTest < Minitest::Test
     @mock_tcp_server.verify
   end
 
+  def test_start_rescues_interrupt_and_shuts_down
+    server = create_server
+    @mock_tcp_server.expect(:accept, nil) { raise Interrupt }
+
+    shutdown_called = false
+    server.stub(:start_connection_watchdog, nil) do
+      server.stub(:shutdown, -> { shutdown_called = true }) do
+        server.start
+      end
+    end
+
+    assert shutdown_called
+  end
+
+  def test_shutdown_disconnects_clients_and_closes_server
+    server = create_server
+    mock_socket = Minitest::Mock.new
+    mock_socket.expect :peeraddr, ["AF_INET", 12_345, "localhost", "127.0.0.1"]
+
+    client = RubyTAK::Client.new(mock_socket)
+    server.instance_variable_get(:@clients_mutex).synchronize do
+      server.instance_variable_get(:@clients) << client
+    end
+
+    mock_socket.expect :close, nil
+    @mock_tcp_server.expect :close, nil
+
+    server.send(:shutdown)
+
+    clients = server.instance_variable_get(:@clients_mutex).synchronize do
+      server.instance_variable_get(:@clients).to_a
+    end
+
+    assert_empty clients
+    mock_socket.verify
+    @mock_tcp_server.verify
+  end
+
   def test_start_connection_watchdog_disconnects_timed_out_clients
     server = create_server
     mock_socket = Minitest::Mock.new
