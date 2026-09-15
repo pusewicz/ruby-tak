@@ -2,47 +2,19 @@
 
 RubyTAK—TAK server written in Ruby
 
-<img src="https://repobeats.axiom.co/api/embed/062386b23b6a091395faf40a4f2a9a3e3dd389ad.svg" width="814" height="318"/>
-
 ## Quick start
 
-  1. Clone the repository and enter the directory
-  
-         git clone https://github.com/pusewicz/ruby-tak.git
-         cd ruby-tak
-         
-  2. Install depependencies
-     
-         ./bin/setup
-         
-  3. Create CA certificate
+    git clone https://github.com/pusewicz/ruby-tak.git
+    cd ruby-tak
+    ./bin/setup
+    ./exe/ruby_tak certificate ca
+    ./exe/ruby_tak certificate server
+    ./exe/ruby_tak client
+    ./exe/ruby_tak server
 
-         ./exe/ruby_tak certificate ca
-    
-  4. Create Server certificate
+Load the generated `client.zip` data package into iTAK to connect to the server ([instructions](https://atakhq.com/en/itak/setup-guide#data-package-method)).
 
-         ./exe/ruby_tak certificate server
-        
-  5. Create iTAK connection data package
-  
-         ./exe/ruby_tak client
-        
-  6. Start the RubyTAK server
-  
-         ./exe/ruby_tak server
-        
-  7. Use the generated `client.zip` data package and load it into iTAK to connect to the server ([instructions](https://atakhq.com/en/itak/setup-guide#data-package-method)).
-
-## Tests
-
-Install dependencies:
+## Development
 
     ./bin/setup
-    
-Run tests:
-
-    ./bin/rake test
-
-Verify Rubocop:
-
-    ./bin/rake rubocop
+    ./bin/rake
