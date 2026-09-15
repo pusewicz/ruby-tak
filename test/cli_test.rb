@@ -191,6 +191,26 @@ class CLITest < Minitest::Test
     end
   end
 
+  def test_certificate_server_includes_local_ips_in_san
+    Dir.mktmpdir do |tmpdir|
+      config = RubyTAK.configuration
+      config.stub :certs_dir, Pathname.new(tmpdir) do
+        capture_io { @cli.run(%w[certificate ca]) }
+
+        fake_ip = Addrinfo.ip("203.0.113.10")
+        Socket.stub :ip_address_list, [fake_ip] do
+          capture_io { @cli.run(%w[certificate server]) }
+        end
+
+        server_crt_path = Pathname.new(tmpdir).join(config.server_crt)
+        cert = OpenSSL::X509::Certificate.new(File.read(server_crt_path))
+        san_extension = cert.extensions.find { |ext| ext.oid == "subjectAltName" }
+
+        assert_includes san_extension.value, "203.0.113.10"
+      end
+    end
+  end
+
   def test_certificate_server_skips_if_exists
     Dir.mktmpdir do |tmpdir|
       config = RubyTAK.configuration
