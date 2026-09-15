@@ -9,10 +9,9 @@ RubyTAK—TAK server written in Ruby
     ./bin/setup
     ./exe/ruby_tak certificate ca
     ./exe/ruby_tak certificate server
-    ./exe/ruby_tak client
     ./exe/ruby_tak server
 
-Load the generated `client.zip` data package into iTAK to connect to the server ([instructions](https://atakhq.com/en/itak/setup-guide#data-package-method)).
+See "Trusting the certificate" below to connect a TAK client to the server.
 
 ## Trusting the certificate
 
@@ -28,6 +27,11 @@ needs to be told to trust `ruby_tak-ca.crt` (from
   it to install it as a configuration profile (Settings → General → VPN
   & Device Management), then enable full trust for it under Settings →
   General → About → Certificate Trust Settings.
+
+If the host's IP address changes (e.g. a new DHCP lease on a Raspberry
+Pi), the server certificate no longer covers it and `certificate server`
+won't regenerate it automatically — delete `ruby_tak-server.crt` and
+`ruby_tak-server.key` and re-run `./exe/ruby_tak certificate server`.
 
 ## Development
 
