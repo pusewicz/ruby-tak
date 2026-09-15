@@ -211,6 +211,24 @@ class CLITest < Minitest::Test
     end
   end
 
+  def test_version_option_prints_version_and_exits
+    output = capture_io do
+      assert_raises(SystemExit) { @cli.run(["-v"]) }
+    end
+
+    assert_match(RubyTAK::VERSION, output[0])
+  end
+
+  def test_help_option_prints_usage_and_exits
+    output = capture_io do
+      assert_raises(SystemExit) { @cli.run(["-h"]) }
+    end
+
+    assert_match(/Usage: ruby_tak/, output[0])
+    assert_match(/Subcommands:/, output[0])
+    assert_match(/server/, output[0])
+  end
+
   def test_invalid_command_shows_error_and_exits
     error = nil
 

@@ -12,6 +12,12 @@ This document captures conventions and best practices for this codebase.
 
 Not just `./bin/rake test` - we need both tests and linting to pass.
 
+SimpleCov enforces 100% line coverage in CI (`minimum_coverage 100 if ENV["CI"]` in `test/test_helper.rb`). Any change without a test fails CI, even if the tests themselves pass. Local runs don't enforce this, so check coverage/index.html if unsure.
+
+## Worktrees
+
+Always do implementation work in a git worktree, not the main checkout. Use the native `EnterWorktree` tool when available; otherwise follow `superpowers:using-git-worktrees`'s git fallback (`.worktrees/` at the project root).
+
 ## Code Style
 
 ### Arrays of Strings

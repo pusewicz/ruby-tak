@@ -23,6 +23,64 @@ class ServerTest < Minitest::Test
     assert_equal @logger, server.logger
   end
 
+  def test_self_start_delegates_to_instance
+    instance = Minitest::Mock.new
+    instance.expect :start, nil
+
+    RubyTAK::Server.stub :new, instance do
+      RubyTAK::Server.start
+    end
+
+    instance.verify
+  end
+
+  def test_start_runs_accept_loop
+    server = create_server
+    @mock_tcp_server.expect(:accept, :fake_socket)
+    @mock_tcp_server.expect(:accept, nil) { raise StopIteration }
+
+    accepted = []
+    server.stub(:handle_accept, ->(socket) { accepted << socket }) do
+      server.stub(:start_connection_watchdog, nil) do
+        server.start
+      end
+    end
+
+    assert_equal [:fake_socket], accepted
+    @mock_tcp_server.verify
+  end
+
+  def test_start_connection_watchdog_disconnects_timed_out_clients
+    server = create_server
+    mock_socket = Minitest::Mock.new
+    mock_socket.expect :peeraddr, ["AF_INET", 12_345, "localhost", "127.0.0.1"]
+
+    client = RubyTAK::Client.new(mock_socket)
+    client.instance_variable_set(:@last_activity_at, Time.now - (RubyTAK::Server::CONNECTION_TIMEOUT + 1))
+    server.instance_variable_get(:@clients_mutex).synchronize do
+      server.instance_variable_get(:@clients) << client
+    end
+
+    mock_socket.expect :close, nil
+    mock_socket.expect(:close, nil) { raise IOError, "already closed" }
+
+    sleep_calls = 0
+    watcher = lambda do |*|
+      sleep_calls += 1
+      raise StopIteration if sleep_calls > 1
+    end
+    server.stub(:sleep, watcher) do
+      server.send(:start_connection_watchdog).join
+    end
+
+    clients = server.instance_variable_get(:@clients_mutex).synchronize do
+      server.instance_variable_get(:@clients).to_a
+    end
+
+    assert_empty clients
+    mock_socket.verify
+  end
+
   def test_handle_disconnect_removes_client
     server = create_server
     mock_socket = Minitest::Mock.new
@@ -336,6 +394,89 @@ class ServerTest < Minitest::Test
 
     server.send(:handle_event, client1, message)
 
+    mock_socket2.verify
+  end
+
+  def test_handle_accept_eof_disconnects_client
+    server = create_server
+    mock_socket = Minitest::Mock.new
+    mock_socket.expect :peeraddr, ["AF_INET", 12_345, "localhost", "127.0.0.1"]
+    mock_socket.expect(:readpartial, nil) { raise EOFError }
+    mock_socket.expect :close, nil
+
+    server.send(:handle_accept, mock_socket)
+
+    sleep 0.3
+
+    clients = server.instance_variable_get(:@clients_mutex).synchronize do
+      server.instance_variable_get(:@clients).to_a
+    end
+
+    assert_empty clients
+    mock_socket.verify
+  end
+
+  def test_handle_accept_standard_error_disconnects_client
+    log_output = StringIO.new
+    logger = Logger.new(log_output)
+    logger.level = Logger::WARN
+    server = TCPServer.stub(:new, @mock_tcp_server) { RubyTAK::Server.new(logger: logger) }
+    mock_socket = Minitest::Mock.new
+    mock_socket.expect :peeraddr, ["AF_INET", 12_345, "localhost", "127.0.0.1"]
+    mock_socket.expect(:readpartial, nil) { raise "boom" }
+    mock_socket.expect :close, nil
+
+    server.send(:handle_accept, mock_socket)
+
+    sleep 0.3
+
+    assert_match(/Client error/, log_output.string)
+    mock_socket.verify
+  end
+
+  def test_handle_event_with_marti_dest_write_failure
+    server = create_server
+
+    mock_socket1 = Minitest::Mock.new
+    mock_socket1.expect :peeraddr, ["AF_INET", 12_345, "localhost", "127.0.0.1"]
+    client1 = RubyTAK::Client.new(mock_socket1)
+    client1.uid = "SENDER-UID"
+
+    mock_socket2 = Minitest::Mock.new
+    mock_socket2.expect :peeraddr, ["AF_INET", 12_346, "localhost", "127.0.0.2"]
+    client2 = RubyTAK::Client.new(mock_socket2)
+    client2.uid = "DEST-UID"
+
+    server.instance_variable_get(:@clients_mutex).synchronize do
+      server.instance_variable_get(:@clients) << client1
+      server.instance_variable_get(:@clients) << client2
+    end
+
+    marti_xml = <<~XML
+      <event version="2.0" uid="SENDER-UID" type="b-m-p-s-m" how="h-g-i-g-o" time="2023-01-24T09:17:49Z" start="2023-01-24T09:17:49Z" stale="2023-01-24T09:19:49Z">
+        <point lat="0.0" lon="0.0" hae="0.0" ce="9999999.0" le="9999999.0"/>
+        <detail>
+          <link uid="DEST-UID" relation="p-p" type="a-f-G-E-V-C"/>
+          <remarks>Test message</remarks>
+          <marti>
+            <dest callsign="Dest" uid="DEST-UID"/>
+          </marti>
+        </detail>
+      </event>
+    XML
+    message = RubyTAK::Message.new(marti_xml.strip)
+
+    mock_socket2.expect(:write, nil) { raise Errno::EPIPE }
+    mock_socket2.expect :close, nil
+
+    server.send(:handle_event, client1, message)
+
+    clients = server.instance_variable_get(:@clients_mutex).synchronize do
+      server.instance_variable_get(:@clients).to_a
+    end
+
+    assert_equal 1, clients.size
+    assert_equal client1, clients[0]
     mock_socket2.verify
   end
 
