@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "ox"
+
 # https://gist.github.com/a-f-G-U-C/77fed4e7aea38e27f3c50583e840a35b
 
 module RubyTAK
@@ -81,8 +83,8 @@ module RubyTAK
         else
           message
         end
-      rescue StandardError
-        ParseError.new("error", {}, [], nil, nil)
+      rescue Ox::Error => e
+        ParseError.new("error", { error: e.message }, [], nil, nil)
       end
     end
   end
