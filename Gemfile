@@ -4,6 +4,7 @@ source "https://rubygems.org"
 
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
+gem "logger"
 gem "ox"
 gem "xdg"
 gem "zeitwerk"
@@ -20,5 +21,6 @@ end
 
 group :test do
   gem "minitest"
+  gem "minitest-mock"
   gem "simplecov", require: false
 end
