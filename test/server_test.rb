@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "openssl"
 require "stringio"
 require "socket"
 
@@ -40,14 +41,29 @@ class ServerTest < Minitest::Test
     @mock_tcp_server.expect(:accept, nil) { raise StopIteration }
 
     accepted = []
-    server.stub(:handle_accept, ->(socket) { accepted << socket }) do
+    server.stub(:accept_connection, ->(socket) { accepted << socket }) do
       server.stub(:start_connection_watchdog, nil) do
-        server.start
+        server.stub(:ssl_context, OpenSSL::SSL::SSLContext.new) do
+          server.start
+        end
       end
     end
 
     assert_equal [:fake_socket], accepted
     @mock_tcp_server.verify
+  end
+
+  def test_start_raises_when_certificate_files_are_missing
+    Dir.mktmpdir do |tmpdir|
+      config = RubyTAK.configuration
+      config.stub :certs_dir, Pathname.new(tmpdir) do
+        config.stub :cot_ssl_port, 0 do
+          server = RubyTAK::Server.new(logger: @logger)
+
+          assert_raises(Errno::ENOENT) { server.start }
+        end
+      end
+    end
   end
 
   def test_start_rescues_interrupt_and_shuts_down
@@ -639,5 +655,215 @@ class ServerTest < Minitest::Test
     server.send(:handle_data, client, unknown_xml)
 
     assert_match(/Unknown message type/, log_output.string)
+  end
+
+  def test_accept_connection_rejects_when_max_connections_reached
+    server = create_server
+
+    RubyTAK::Server::MAX_CONNECTIONS.times do
+      mock_socket = Minitest::Mock.new
+      mock_socket.expect :peeraddr, ["AF_INET", 12_345, "localhost", "127.0.0.1"]
+      client = RubyTAK::Client.new(mock_socket)
+      server.instance_variable_get(:@clients_mutex).synchronize do
+        server.instance_variable_get(:@clients) << client
+      end
+    end
+
+    reject_socket = Minitest::Mock.new
+    reject_socket.expect :close, nil
+
+    server.send(:accept_connection, reject_socket)
+
+    reject_socket.verify
+  end
+
+  def test_accept_connection_handles_io_error_during_handshake
+    server = create_server
+    raw_socket = Minitest::Mock.new
+    raw_socket.expect :close, nil
+
+    fake_ssl_socket = Minitest::Mock.new
+    fake_ssl_socket.expect :sync_close=, nil, [true]
+    fake_ssl_socket.expect(:accept, nil) { raise IOError, "closed" }
+
+    OpenSSL::SSL::SSLSocket.stub :new, fake_ssl_socket do
+      server.stub :ssl_context, OpenSSL::SSL::SSLContext.new do
+        server.send(:accept_connection, raw_socket).join
+      end
+    end
+
+    raw_socket.verify
+    fake_ssl_socket.verify
+  end
+
+  def test_accept_connection_handles_unexpected_error_during_handshake
+    server = create_server
+    raw_socket = Minitest::Mock.new
+    raw_socket.expect :close, nil
+
+    fake_ssl_socket = Minitest::Mock.new
+    fake_ssl_socket.expect :sync_close=, nil, [true]
+    fake_ssl_socket.expect(:accept, nil) { raise Errno::ECONNABORTED }
+
+    OpenSSL::SSL::SSLSocket.stub :new, fake_ssl_socket do
+      server.stub :ssl_context, OpenSSL::SSL::SSLContext.new do
+        server.send(:accept_connection, raw_socket).join
+      end
+    end
+
+    raw_socket.verify
+    fake_ssl_socket.verify
+
+    in_flight = server.instance_variable_get(:@in_flight_count)
+
+    assert_equal 0, in_flight
+  end
+
+  def test_accept_connection_logs_handshake_failure_at_info_level
+    log_output = StringIO.new
+    logger = Logger.new(log_output)
+    logger.level = Logger::INFO
+    server = TCPServer.stub(:new, @mock_tcp_server) { RubyTAK::Server.new(logger: logger) }
+
+    raw_socket = Minitest::Mock.new
+    raw_socket.expect :close, nil
+
+    fake_ssl_socket = Minitest::Mock.new
+    fake_ssl_socket.expect :sync_close=, nil, [true]
+    fake_ssl_socket.expect(:accept, nil) { raise OpenSSL::SSL::SSLError, "handshake failure" }
+
+    OpenSSL::SSL::SSLSocket.stub :new, fake_ssl_socket do
+      server.stub :ssl_context, OpenSSL::SSL::SSLContext.new do
+        server.send(:accept_connection, raw_socket).join
+      end
+    end
+
+    assert_match(/TLS handshake failed/, log_output.string)
+    raw_socket.verify
+    fake_ssl_socket.verify
+  end
+
+  def test_accept_connection_times_out_slow_handshake
+    log_output = StringIO.new
+    logger = Logger.new(log_output)
+    logger.level = Logger::INFO
+    server = TCPServer.stub(:new, @mock_tcp_server) { RubyTAK::Server.new(logger: logger) }
+
+    raw_socket = Minitest::Mock.new
+    raw_socket.expect :close, nil
+
+    fake_ssl_socket = Minitest::Mock.new
+    fake_ssl_socket.expect :sync_close=, nil, [true]
+    fake_ssl_socket.expect(:accept, nil) { sleep 1 }
+
+    original_timeout = RubyTAK::Server::HANDSHAKE_TIMEOUT
+    RubyTAK::Server.send(:remove_const, :HANDSHAKE_TIMEOUT)
+    RubyTAK::Server.const_set(:HANDSHAKE_TIMEOUT, 0.05)
+
+    begin
+      OpenSSL::SSL::SSLSocket.stub :new, fake_ssl_socket do
+        server.stub :ssl_context, OpenSSL::SSL::SSLContext.new do
+          server.send(:accept_connection, raw_socket).join
+        end
+      end
+    ensure
+      RubyTAK::Server.send(:remove_const, :HANDSHAKE_TIMEOUT)
+      RubyTAK::Server.const_set(:HANDSHAKE_TIMEOUT, original_timeout)
+    end
+
+    assert_match(/TLS handshake timed out/, log_output.string)
+    raw_socket.verify
+    fake_ssl_socket.verify
+
+    in_flight = server.instance_variable_get(:@in_flight_count)
+
+    assert_equal 0, in_flight
+  end
+
+  def test_accept_connection_rejects_when_in_flight_handshakes_reach_max_connections
+    server = create_server
+    server.instance_variable_set(:@in_flight_count, RubyTAK::Server::MAX_CONNECTIONS)
+
+    reject_socket = Minitest::Mock.new
+    reject_socket.expect :close, nil
+
+    server.send(:accept_connection, reject_socket)
+
+    reject_socket.verify
+
+    clients = server.instance_variable_get(:@clients_mutex).synchronize do
+      server.instance_variable_get(:@clients).to_a
+    end
+
+    assert_empty clients
+  end
+
+  def with_tls_server
+    Dir.mktmpdir do |tmpdir|
+      config = RubyTAK.configuration
+      config.stub :certs_dir, Pathname.new(tmpdir) do
+        capture_io { RubyTAK::CLI.new.run(%w[certificate ca]) }
+        capture_io { RubyTAK::CLI.new.run(%w[certificate server]) }
+
+        config.stub :cot_ssl_port, 0 do
+          server = RubyTAK::Server.new(logger: @logger)
+          tcp_server = server.instance_variable_get(:@server)
+          port = tcp_server.addr[1]
+          server_thread = Thread.new { server.start }
+          server_thread.report_on_exception = false
+          sleep 0.1
+
+          begin
+            yield server, port
+          ensure
+            tcp_server.close
+            server_thread.kill
+            begin
+              server_thread.join(1)
+            rescue StandardError
+              nil
+            end
+          end
+        end
+      end
+    end
+  end
+
+  def test_accept_connection_completes_tls_handshake_and_processes_auth
+    with_tls_server do |server, port|
+      tcp_socket = TCPSocket.new("127.0.0.1", port)
+      client_ssl_context = OpenSSL::SSL::SSLContext.new
+      client_ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      ssl_socket = OpenSSL::SSL::SSLSocket.new(tcp_socket, client_ssl_context)
+      ssl_socket.connect
+
+      ssl_socket.write('<auth><cot username="piotr" password="password" uid="TLS-TEST-UID"/></auth>')
+      sleep 0.2
+
+      clients = server.instance_variable_get(:@clients_mutex).synchronize do
+        server.instance_variable_get(:@clients).to_a
+      end
+
+      assert_equal 1, clients.size
+      assert_equal "TLS-TEST-UID", clients[0].uid
+    ensure
+      ssl_socket&.close
+    end
+  end
+
+  def test_accept_connection_handles_non_tls_client_without_crashing
+    with_tls_server do |server, port|
+      tcp_socket = TCPSocket.new("127.0.0.1", port)
+      tcp_socket.write("not a tls client hello\n")
+      sleep 0.2
+
+      clients = server.instance_variable_get(:@clients_mutex).synchronize do
+        server.instance_variable_get(:@clients).to_a
+      end
+
+      assert_empty clients
+    ensure
+      tcp_socket&.close
+    end
   end
 end
