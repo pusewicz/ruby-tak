@@ -41,9 +41,18 @@ module RubyTAK
         socket = @server.accept
         accept_connection(socket)
       end
+    rescue Interrupt
+      shutdown
     end
 
     private
+
+    def shutdown
+      logger.info("Shutting down...")
+      clients_to_close = @clients_mutex.synchronize { @clients.to_a }
+      clients_to_close.each { |client| handle_disconnect(client) }
+      @server.close
+    end
 
     def start_connection_watchdog
       Thread.start do
