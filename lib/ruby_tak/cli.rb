@@ -132,6 +132,7 @@ module RubyTAK
 
     def generate_server_certificate
       require "openssl"
+      require "socket"
 
       config = RubyTAK.configuration
       ca_key_path = config.ca_key_path
@@ -185,7 +186,7 @@ module RubyTAK
       server_cert.add_extension(ef.create_extension("subjectKeyIdentifier", "hash", false))
       server_cert.add_extension(ef.create_extension("authorityKeyIdentifier", "keyid:always", false))
       server_cert.add_extension(
-        ef.create_extension("subjectAltName", "DNS:#{config.hostname},IP:127.0.0.1", false)
+        ef.create_extension("subjectAltName", subject_alt_name(config), false)
       )
 
       # Sign certificate with CA
@@ -199,6 +200,12 @@ module RubyTAK
       puts "Server certificate generated successfully:"
       puts "  Key: #{server_key_path}"
       puts "  Certificate: #{server_crt_path}"
+    end
+
+    def subject_alt_name(config)
+      local_ips = Socket.ip_address_list.select(&:ipv4?).map(&:ip_address).uniq
+      entries = ["DNS:#{config.hostname}"] + local_ips.map { |ip| "IP:#{ip}" }
+      entries.join(",")
     end
   end
 end

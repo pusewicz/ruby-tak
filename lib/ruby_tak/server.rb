@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
+require "openssl"
 require "ox"
 require "socket"
+require "timeout"
 
 module RubyTAK
   class Server
@@ -11,6 +13,7 @@ module RubyTAK
 
     MAX_CONNECTIONS = 200
     CONNECTION_TIMEOUT = 300 # seconds
+    HANDSHAKE_TIMEOUT = 10 # seconds
 
     attr_reader :logger
 
@@ -23,6 +26,8 @@ module RubyTAK
       @logger = logger
       @clients = ::Set.new
       @clients_mutex = Mutex.new
+      @in_flight_count = 0
+      @in_flight_mutex = Mutex.new
       logger.info("Starting #{self.class.name} v#{RubyTAK::VERSION} on port #{@port}")
       @server = TCPServer.new("0.0.0.0", @port)
     end
@@ -30,10 +35,11 @@ module RubyTAK
     # TODO: Make things non-blocking
     # https://stackoverflow.com/questions/29858113/unable-to-make-socket-accept-non-blocking-ruby-2-2
     def start
+      ssl_context
       start_connection_watchdog
       loop do
         socket = @server.accept
-        handle_accept(socket)
+        accept_connection(socket)
       end
     rescue Interrupt
       shutdown
@@ -69,17 +75,74 @@ module RubyTAK
       end
     end
 
-    def handle_accept(socket)
+    def accept_connection(socket)
+      if at_capacity?
+        logger.warn("MAX_CONNECTIONS reached, rejecting connection")
+        socket.close
+        return
+      end
+
+      @in_flight_mutex.synchronize { @in_flight_count += 1 }
+
+      Thread.start(socket) do |raw_socket|
+        begin
+          ssl_socket = OpenSSL::SSL::SSLSocket.new(raw_socket, ssl_context)
+          ssl_socket.sync_close = true
+          Timeout.timeout(HANDSHAKE_TIMEOUT) { ssl_socket.accept }
+        rescue OpenSSL::SSL::SSLError => e
+          logger.info("TLS handshake failed: #{e.class} #{e.message}")
+          raw_socket.close
+          Thread.exit
+        rescue IOError, Errno::ECONNRESET => e
+          logger.debug("Connection closed during TLS handshake: #{e.class}")
+          raw_socket.close
+          Thread.exit
+        rescue Timeout::Error
+          logger.info("TLS handshake timed out after #{HANDSHAKE_TIMEOUT}s")
+          raw_socket.close
+          Thread.exit
+        rescue StandardError => e
+          logger.error("Unexpected error during TLS handshake: #{e.class} #{e.message}")
+          raw_socket.close
+          Thread.exit
+        ensure
+          @in_flight_mutex.synchronize { @in_flight_count -= 1 }
+        end
+
+        handle_accept(ssl_socket)
+      end
+    end
+
+    def at_capacity?
       client_count = @clients_mutex.synchronize { @clients.size }
-      if client_count >= MAX_CONNECTIONS
+      in_flight_count = @in_flight_mutex.synchronize { @in_flight_count }
+      (client_count + in_flight_count) >= MAX_CONNECTIONS
+    end
+
+    def ssl_context
+      @ssl_context ||= begin
+        config = RubyTAK.configuration
+        context = OpenSSL::SSL::SSLContext.new
+        context.cert = OpenSSL::X509::Certificate.new(File.read(config.server_crt_path))
+        context.key = OpenSSL::PKey::RSA.new(File.read(config.server_key_path))
+        context.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        context
+      end
+    end
+
+    def handle_accept(socket)
+      if at_capacity?
         logger.warn("MAX_CONNECTIONS reached, rejecting connection")
         socket.close
         return
       end
 
       client = Client.new(socket)
-      @clients_mutex.synchronize { @clients << client }
-      logger.debug("Client count: #{client_count + 1}")
+      client_count = @clients_mutex.synchronize do
+        @clients << client
+        @clients.size
+      end
+      logger.debug("Client count: #{client_count}")
       Thread.start(client) do |c|
         logger.debug("ACCEPT: #{c.uid}")
         loop do

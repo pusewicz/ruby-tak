@@ -12,6 +12,7 @@ module RubyTAK
 
     def initialize(socket)
       @socket = socket
+      @socket_mutex = Mutex.new
       @remote_addr = socket.peeraddr.last
       @uid = "__ANONYMOUS-#{SecureRandom.hex(6)}-#{@remote_addr}"
       @last_activity_at = Time.now
@@ -23,11 +24,11 @@ module RubyTAK
     end
 
     def write(data)
-      Timeout.timeout(WRITE_TIMEOUT) { @socket.write(data) }
+      @socket_mutex.synchronize { Timeout.timeout(WRITE_TIMEOUT) { @socket.write(data) } }
     end
 
     def close
-      @socket.close
+      @socket_mutex.synchronize { @socket.close }
     end
 
     def touch
