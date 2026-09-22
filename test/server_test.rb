@@ -53,6 +53,28 @@ class ServerTest < Minitest::Test
     @mock_tcp_server.verify
   end
 
+  def test_start_logs_error_when_enrollment_server_fails_to_start
+    log_output = StringIO.new
+    logger = Logger.new(log_output)
+    logger.level = Logger::ERROR
+    failing_enrollment_server = Minitest::Mock.new
+    failing_enrollment_server.expect(:start, nil) { raise "boom" }
+
+    server = TCPServer.stub(:new, @mock_tcp_server) do
+      RubyTAK::Server.new(logger: logger, enrollment_server: failing_enrollment_server)
+    end
+    @mock_tcp_server.expect(:accept, nil) { raise StopIteration }
+
+    server.stub(:start_connection_watchdog, nil) do
+      server.stub(:ssl_context, OpenSSL::SSL::SSLContext.new) do
+        server.start
+      end
+    end
+    sleep 0.1
+
+    assert_match(/EnrollmentServer failed to start: RuntimeError boom/, log_output.string)
+  end
+
   def test_start_raises_when_certificate_files_are_missing
     Dir.mktmpdir do |tmpdir|
       config = RubyTAK.configuration
@@ -798,7 +820,7 @@ class ServerTest < Minitest::Test
     assert_empty clients
   end
 
-  def with_tls_server
+  def with_tls_server(&)
     Dir.mktmpdir do |tmpdir|
       config = RubyTAK.configuration
       config.stub :certs_dir, Pathname.new(tmpdir) do
@@ -806,26 +828,31 @@ class ServerTest < Minitest::Test
         capture_io { RubyTAK::CLI.new.run(%w[certificate server]) }
 
         config.stub :cot_ssl_port, 0 do
-          server = RubyTAK::Server.new(logger: @logger)
-          tcp_server = server.instance_variable_get(:@server)
-          port = tcp_server.addr[1]
-          server_thread = Thread.new { server.start }
-          server_thread.report_on_exception = false
-          sleep 0.1
-
-          begin
-            yield server, port
-          ensure
-            tcp_server.close
-            server_thread.kill
-            begin
-              server_thread.join(1)
-            rescue StandardError
-              nil
-            end
+          config.stub :cert_enrollment_port, 0 do
+            run_tls_server(&)
           end
         end
       end
+    end
+  end
+
+  def run_tls_server
+    server = RubyTAK::Server.new(logger: @logger)
+    tcp_server = server.instance_variable_get(:@server)
+    port = tcp_server.addr[1]
+    server_thread = Thread.new { server.start }
+    server_thread.report_on_exception = false
+    sleep 0.1
+
+    yield server, port
+  ensure
+    server.instance_variable_get(:@enrollment_server).shutdown
+    tcp_server.close
+    server_thread.kill
+    begin
+      server_thread.join(1)
+    rescue StandardError
+      nil
     end
   end
 

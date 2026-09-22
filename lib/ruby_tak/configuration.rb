@@ -7,7 +7,7 @@ module RubyTAK
   class Configuration
     class ArgumentError < ::ArgumentError; end
 
-    attr_reader :cot_ssl_port
+    attr_reader :cot_ssl_port, :cert_enrollment_port
     attr_accessor :ca_crt, :ca_key, :server_crt, :server_key, :server_p12, :hostname
 
     def initialize(env = ENV.to_h)
@@ -18,6 +18,7 @@ module RubyTAK
       @server_p12 = "#{subdirectory}-server.p12"
       @hostname = Socket.gethostname
       self.cot_ssl_port = env.fetch("PORT", 8089)
+      self.cert_enrollment_port = env.fetch("ENROLLMENT_PORT", 8446)
     end
 
     def ca_crt_path
@@ -49,6 +50,13 @@ module RubyTAK
       raise ArgumentError, "cot_ssl_port must be between 1 and 65535" unless (1..65_535).cover?(port)
 
       @cot_ssl_port = port
+    end
+
+    def cert_enrollment_port=(value)
+      port = Integer(value)
+      raise ArgumentError, "cert_enrollment_port must be between 1 and 65535" unless (1..65_535).cover?(port)
+
+      @cert_enrollment_port = port
     end
 
     def certs_dir

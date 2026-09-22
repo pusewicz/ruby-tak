@@ -89,6 +89,21 @@ class ConfigurationTest < Minitest::Test
     assert_raises(RubyTAK::Configuration::ArgumentError) { configuration.cot_ssl_port = 65_536 }
   end
 
+  def test_cert_enrollment_port_default
+    assert_equal 8446, configuration.cert_enrollment_port
+  end
+
+  def test_cert_enrollment_port=
+    configuration.cert_enrollment_port = 1234
+
+    assert_equal 1234, configuration.cert_enrollment_port
+  end
+
+  def test_cert_enrollment_port_range
+    assert_raises(RubyTAK::Configuration::ArgumentError) { configuration.cert_enrollment_port = 0 }
+    assert_raises(RubyTAK::Configuration::ArgumentError) { configuration.cert_enrollment_port = 65_536 }
+  end
+
   def test_hostname_default
     assert_equal Socket.gethostname, configuration.hostname
   end

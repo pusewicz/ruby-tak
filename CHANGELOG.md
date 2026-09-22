@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- A certificate-enrollment API (`/Marti/api/tls/config`,
+  `/Marti/api/tls/signClient/v2`, `/Marti/api/tls/profile/enrollment`) on a
+  new port (`8446` by default, `ENROLLMENT_PORT` env override). TAK clients
+  added as a "TAK Server" entry with a username and password — like iTAK —
+  call this to trade credentials for a client certificate before streaming;
+  without it, they failed with a generic authentication error and nothing in
+  the server log.
+
 ### Fixed
 
 - Pressing Ctrl-C now shuts the server down cleanly (disconnecting clients and
