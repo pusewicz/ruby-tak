@@ -1,0 +1,3 @@
+module RubyTAK
+  VERSION: String
+end

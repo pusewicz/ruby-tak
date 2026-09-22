@@ -1,0 +1,65 @@
+module Ox
+  class Error < StandardError
+  end
+  class ParseError < Error
+  end
+  class ArgError < Error
+  end
+  class SyntaxError < Error
+  end
+  class InvalidPath < Error
+  end
+
+  def self.parse: (String xml) -> untyped
+  def self.dump: (untyped obj, **untyped options) -> String
+
+  class Node
+    attr_accessor value: String?
+    def initialize: (untyped value) -> void
+    def ==: (untyped other) -> bool
+    def eql?: (untyped other) -> bool
+  end
+
+  module HasAttrs
+    def attributes: () -> Hash[Symbol | String, String]
+    def []: (Symbol | String attr) -> String?
+    def []=: (Symbol | String attr, untyped value) -> String
+    def method_missing: (Symbol id, *untyped args) -> untyped
+  end
+
+  class Element < Node
+    include HasAttrs
+
+    alias name value
+    alias name= value=
+
+    def nodes: () -> Array[untyped]
+    def <<: (Node | String node) -> self
+    def prepend_child: (Node | String node) -> self
+    def text: () -> String?
+    def replace_text: (String txt) -> void
+    def locate: (String? path) -> Array[untyped]
+    def each: (?untyped cond) { (untyped) -> void } -> void
+    def method_missing: (Symbol id, *untyped args) -> untyped
+  end
+
+  class Document < Element
+    def initialize: (?Hash[Symbol, String] prolog) -> void
+    def root: () -> Element?
+  end
+
+  class Instruct < Node
+    include HasAttrs
+    attr_accessor content: String?
+    alias target value
+  end
+
+  class Comment < Node
+  end
+  class CData < Node
+  end
+  class DocType < Node
+  end
+  class Raw < Node
+  end
+end

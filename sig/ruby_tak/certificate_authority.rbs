@@ -1,0 +1,19 @@
+module RubyTAK
+  class CertificateAuthority
+    class InvalidCSR < RubyTAK::Error
+    end
+
+    VALIDITY_DAYS: Integer
+
+    @config: Configuration
+    @certificate: OpenSSL::X509::Certificate?
+
+    def initialize: (?config: Configuration) -> void
+    def certificate: () -> OpenSSL::X509::Certificate
+    def sign_client_csr: (String? csr_pem, ?validity_days: Integer) -> OpenSSL::X509::Certificate
+
+    private
+
+    def parse_csr: (String? csr_pem) -> OpenSSL::X509::Request
+  end
+end

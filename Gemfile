@@ -10,10 +10,12 @@ group :development do
   gem "debug", require: false
   gem "overcommit", require: false
   gem "rake", require: false
+  gem "rbs", "~> 4.2", require: false
   gem "rubocop", require: false
   gem "rubocop-minitest", require: false
   gem "rubocop-performance", require: false
   gem "rubocop-rake", require: false
+  gem "steep", "~> 2.1", require: false
 end
 
 group :test do

@@ -1,0 +1,20 @@
+module Zeitwerk
+  interface _Inflector
+    def camelize: (String basename, String abspath) -> String
+  end
+
+  class Inflector
+    def inflect: (Hash[String, String] inflections) -> void
+    def camelize: (String basename, String abspath) -> String
+  end
+
+  class Loader
+    def self.for_gem: (?warn_on_extra_files: bool) -> Loader
+
+    attr_accessor inflector: Inflector
+    def push_dir: (String | Pathname path, ?namespace: Module) -> void
+    def setup: () -> void
+    def eager_load: (?force: bool) -> void
+    def ignore: (*String | Pathname paths) -> void
+  end
+end

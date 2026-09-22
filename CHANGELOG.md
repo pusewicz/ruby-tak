@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- RBS type signatures for `lib/` (`sig/`), checked with Steep and verified
+  against the test suite at runtime with `rbs/test`. `./bin/rake` now fails on
+  an undeclared method, a signature mismatch, or a signature that disagrees
+  with what the code actually does at runtime.
 - A certificate-enrollment API (`/Marti/api/tls/config`,
   `/Marti/api/tls/signClient/v2`, `/Marti/api/tls/profile/enrollment`) on a
   new port (`8446` by default, `ENROLLMENT_PORT` env override). TAK clients

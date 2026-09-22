@@ -1,0 +1,11 @@
+module RubyTAK
+  class CLI
+    def run: (?Array[String] args) -> void
+
+    private
+
+    def generate_ca_certificate: () -> void
+    def generate_server_certificate: () -> void
+    def subject_alt_name: (Configuration config) -> String
+  end
+end

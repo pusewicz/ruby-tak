@@ -93,6 +93,7 @@ module RubyTAK
       @in_flight_mutex.synchronize { @in_flight_count += 1 }
 
       Thread.start(socket) do |raw_socket|
+        # @type var ssl_socket: OpenSSL::SSL::SSLSocket
         begin
           ssl_socket = OpenSSL::SSL::SSLSocket.new(raw_socket, ssl_context)
           ssl_socket.sync_close = true

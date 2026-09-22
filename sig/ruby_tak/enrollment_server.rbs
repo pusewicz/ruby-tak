@@ -1,0 +1,28 @@
+module RubyTAK
+  class EnrollmentServer
+    class LoggerIO
+      @logger: ::Logger
+
+      def initialize: (::Logger logger) -> void
+      def <<: (untyped message) -> self
+    end
+
+    attr_reader logger: ::Logger
+
+    @logger: ::Logger
+    @certificate_authority: CertificateAuthority
+    @server: WEBrick::HTTPServer?
+
+    def initialize: (?logger: ::Logger, ?certificate_authority: CertificateAuthority) -> void
+    def start: () -> void
+    def shutdown: () -> void
+
+    private
+
+    def with_auth: (WEBrick::HTTPRequest req, WEBrick::HTTPResponse res) { () -> void } -> void
+    def tls_config: (WEBrick::HTTPRequest _req, WEBrick::HTTPResponse res) -> void
+    def sign_client: (WEBrick::HTTPRequest req, WEBrick::HTTPResponse res) -> void
+    def handle_unknown: (WEBrick::HTTPRequest req, WEBrick::HTTPResponse res) -> void
+    def redact_authorization: (Hash[String, untyped] headers) -> Hash[String, untyped]
+  end
+end

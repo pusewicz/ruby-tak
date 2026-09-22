@@ -1,0 +1,8 @@
+module XDG
+  class Environment
+    def config_home: () -> Pathname
+    def data_home: () -> Pathname
+    def cache_home: () -> Pathname
+    def state_home: () -> Pathname
+  end
+end

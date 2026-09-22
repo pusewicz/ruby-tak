@@ -1,0 +1,12 @@
+dependencies:
+  - name: base64
+  - name: forwardable
+  - name: json
+  - name: logger
+  - name: openssl
+  - name: optparse
+  - name: pathname
+  - name: securerandom
+  - name: socket
+  - name: time
+  - name: timeout
