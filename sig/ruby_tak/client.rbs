@@ -16,7 +16,7 @@ module RubyTAK
 
     def initialize: (untyped socket) -> void
     def readpartial: (Integer maxlen) -> String
-    def write: (untyped data) -> void
+    def write: (untyped data) -> Integer?
     def close: () -> void
     def touch: () -> Time
     def user=: (Message event) -> String?
