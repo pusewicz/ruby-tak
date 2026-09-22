@@ -1,0 +1,25 @@
+module RubyTAK
+  class Client
+    MAX_BUFFER_SIZE: Integer
+    WRITE_TIMEOUT: Integer
+
+    @socket: untyped
+    @socket_mutex: Thread::Mutex
+    @buffer: String
+
+    attr_accessor uid: String?
+    attr_accessor username: String?
+    attr_reader remote_addr: String?
+    attr_reader callsign: String?
+    attr_reader group: String?
+    attr_reader last_activity_at: Time
+
+    def initialize: (untyped socket) -> void
+    def readpartial: (Integer maxlen) -> String
+    def write: (untyped data) -> void
+    def close: () -> void
+    def touch: () -> Time
+    def user=: (Message event) -> String?
+    def extract_messages: (String data) -> Array[String]
+  end
+end

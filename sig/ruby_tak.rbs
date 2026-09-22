@@ -1,0 +1,18 @@
+module RubyTAK
+  class Error < StandardError
+  end
+
+  # `module_function` copies each method onto the singleton *and* keeps a
+  # private instance copy, so the ivars have to be declared for both contexts.
+  @mutex: Thread::Mutex
+  @configuration: Configuration?
+  @logger: ::Logger?
+
+  self.@mutex: Thread::Mutex
+  self.@configuration: Configuration?
+  self.@logger: ::Logger?
+
+  def self?.configuration: () -> Configuration
+  def self?.logger: () -> ::Logger
+  def self?.configure: (?String? path) ?{ (Configuration) -> void } -> void
+end

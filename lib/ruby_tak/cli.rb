@@ -5,7 +5,7 @@ require "optparse"
 module RubyTAK
   class CLI
     def run(args = ARGV)
-      options = {}
+      options = {} #: Hash[Symbol, Integer]
 
       subcommands = {
         "server" => OptionParser.new do |opts|

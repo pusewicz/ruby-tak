@@ -1,0 +1,31 @@
+module RubyTAK
+  class MessageBuilder
+    type attributes = Hash[Symbol, untyped]
+
+    @attributes: attributes
+    @tag: String
+    @point: attributes
+    @detail: attributes
+
+    def self.pong: (?Time now) -> String
+
+    # `rbs/test` cannot model `build({sym: ...})`: `RBS::Test::TypeCheck#zip_args`
+    # reads a trailing Symbol-keyed positional Hash as the keyword arguments when
+    # the method type declares any keyword, so the call is rejected. `.pong` and
+    # `#initialize` are still verified at runtime.
+    %a{rbs:test:skip}
+    def self.build: (?attributes attributes, ?tag: String, ?point: attributes?, ?detail: attributes?) -> String
+
+    def initialize: (?attributes attributes, ?tag: String, ?point: attributes?, ?detail: attributes?) -> void
+    def to_xml: () -> String
+
+    private
+
+    def build_element: (String name, attributes attributes) -> Ox::Element
+    def build_point: () -> Ox::Element
+    def build_detail: () -> Ox::Element
+    def ox_document: () { (Ox::Document) -> void } -> Ox::Document
+    def ox_element: (?String tag) { (Ox::Element) -> void } -> Ox::Element
+    def ox_instruct: () -> Ox::Instruct
+  end
+end

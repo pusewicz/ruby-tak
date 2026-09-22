@@ -45,3 +45,12 @@ Add RubyTAK in iTAK as a **TAK Server**:
 
     ./bin/setup
     ./bin/rake
+
+`./bin/rake` runs the test suite, RuboCop, and RBS type checking (`rbs
+validate`, `steep check`, and a run of the test suite under `rbs/test` that
+verifies the signatures against real runtime behavior). The gem ships its own
+`sig/` directory, but it isn't self-contained: `ox` and `xdg` have no
+upstream RBS signatures, so `sig/ruby_tak/message.rbs` and
+`sig/ruby_tak/configuration.rbs` reference types a consumer's `rbs collection`
+won't resolve on its own. Signatures for those two gems live in `vendor/sig/`
+for local type checking but aren't shipped.

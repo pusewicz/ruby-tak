@@ -8,6 +8,10 @@ AllCops:
   NewCops: enable
   TargetRubyVersion: 4.0
 
+Layout/LeadingCommentSpace:
+  AllowRBSInlineAnnotation: true
+  AllowSteepAnnotation: true
+
 Style/Documentation:
   Enabled: false
 

@@ -1,0 +1,35 @@
+module WEBrick
+  class HTTPServer
+    def initialize: (?Hash[Symbol, untyped] config, ?untyped default) -> void
+    def mount_proc: (String dir) { (HTTPRequest, HTTPResponse) -> void } -> void
+    def start: () -> void
+    def shutdown: () -> void
+  end
+
+  class HTTPRequest
+    def request_method: () -> String
+    def path: () -> String
+    def query_string: () -> String?
+    def content_type: () -> String?
+    def body: () -> String?
+    def header: () -> Hash[String, untyped]
+    def []: (String header_name) -> String?
+  end
+
+  class HTTPResponse
+    def status: () -> Integer
+    def status=: (Integer status) -> Integer
+    def content_type=: (String type) -> String
+    def body: () -> untyped
+    def body=: (untyped body) -> untyped
+  end
+
+  class BasicLog
+    WARN: Integer
+
+    def initialize: (?untyped log_file, ?Integer? level) -> void
+  end
+
+  class Log < BasicLog
+  end
+end

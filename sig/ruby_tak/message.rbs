@@ -1,0 +1,41 @@
+module RubyTAK
+  class Message < String
+    extend Forwardable
+
+    IDENT_KEYS: Array[String]
+
+    class NullMessage < ::Struct[untyped]
+      def self.new: (String name, Hash[Symbol, String] attributes, Array[untyped] nodes, untyped detail, untyped cot) -> instance
+      def initialize: (String name, Hash[Symbol, String] attributes, Array[untyped] nodes, untyped detail, untyped cot) -> void
+
+      attr_accessor name: String
+      attr_accessor attributes: Hash[Symbol, String]
+      attr_accessor nodes: Array[untyped]
+      attr_accessor detail: untyped
+      attr_accessor cot: untyped
+    end
+
+    @parsed_message: untyped
+
+    def initialize: (*untyped) -> void
+
+    def name: () -> String
+    def attributes: () -> Hash[Symbol, String]
+    def nodes: () -> Array[untyped]
+    def detail: () -> untyped
+
+    def event?: () -> bool
+    def ping?: () -> bool
+    def marti?: () -> bool
+    def marti_dest_uids: () -> Array[String]?
+    def contact: () -> untyped
+    def cot: () -> untyped
+    def group: () -> untyped
+    def ident?: () -> bool
+    def to_xml: () -> String
+
+    private
+
+    def parsed_message: () -> untyped
+  end
+end

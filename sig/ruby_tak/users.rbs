@@ -1,0 +1,7 @@
+module RubyTAK
+  module Users
+    CREDENTIALS: Hash[String, String]
+
+    def self?.authenticate?: (String? username, String? password) -> bool
+  end
+end

@@ -1,0 +1,5 @@
+module RubyTAK
+  module MessageParser
+    def self?.parse: (String data) -> Ox::Element
+  end
+end

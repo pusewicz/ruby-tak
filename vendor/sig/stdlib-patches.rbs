@@ -1,0 +1,17 @@
+# Corrections to signatures shipped with rbs 4.2.0 that are narrower than the
+# real API. `| ...` appends an overload to the existing definition.
+
+class TCPServer < TCPSocket
+  def initialize: (String host, Integer port) -> void
+                | ...
+end
+
+module OpenSSL
+  module X509
+    class Certificate
+      # OpenSSL accepts a `Digest` instance as well as a digest name.
+      def sign: (PKey::PKey key, Digest digest) -> String
+              | ...
+    end
+  end
+end

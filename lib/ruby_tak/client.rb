@@ -49,7 +49,7 @@ module RubyTAK
         raise "Buffer overflow: #{bytesize} bytes"
       end
 
-      messages = []
+      messages = [] #: Array[String]
 
       # Extract complete messages (ending with </event> or </auth>)
       while (match = @buffer.match(%r{(.*?</(?:event|auth)>)}m))

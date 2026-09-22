@@ -1,0 +1,39 @@
+module RubyTAK
+  class Server
+    MAX_CONNECTIONS: Integer
+    CONNECTION_TIMEOUT: Integer
+    HANDSHAKE_TIMEOUT: Integer
+
+    @port: Integer
+    @clients: Set[Client]
+    @clients_mutex: Thread::Mutex
+    @in_flight_count: Integer
+    @in_flight_mutex: Thread::Mutex
+    @enrollment_server: EnrollmentServer
+    @server: TCPServer
+    @ssl_context: OpenSSL::SSL::SSLContext?
+
+    attr_reader logger: ::Logger
+
+    def self.start: () -> void
+
+    def initialize: (?logger: ::Logger, ?enrollment_server: EnrollmentServer) -> void
+    def start: () -> void
+
+    private
+
+    def start_enrollment_server: () -> Thread
+    def shutdown: () -> void
+    def start_connection_watchdog: () -> Thread
+    def accept_connection: (untyped socket) -> void
+    def at_capacity?: () -> bool
+    def ssl_context: () -> OpenSSL::SSL::SSLContext
+    def handle_accept: (untyped socket) -> void
+    def handle_data: (Client client, String data) -> void
+    def handle_disconnect: (Client client) -> void
+    def handle_event: (Client client, Message message) -> void
+    def handle_auth: (Client client, Message message) -> void
+    def handle_ping: (Client client, Message _ping) -> void
+    def broadcast: (Message message, Client source_client) -> void
+  end
+end

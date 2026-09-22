@@ -1,0 +1,39 @@
+module RubyTAK
+  class Configuration
+    class ArgumentError < ::ArgumentError
+    end
+
+    @certs_dir: Pathname?
+    @data_package_dir: Pathname?
+    @config_home: Pathname?
+    @data_home: Pathname?
+    @xdg: XDG::Environment?
+
+    attr_reader cot_ssl_port: Integer
+    attr_reader cert_enrollment_port: Integer
+    attr_accessor ca_crt: String
+    attr_accessor ca_key: String
+    attr_accessor server_crt: String
+    attr_accessor server_key: String
+    attr_accessor server_p12: String
+    attr_accessor hostname: String
+
+    def initialize: (?Hash[String, String] env) -> void
+    def ca_crt_path: () -> Pathname
+    def ca_key_path: () -> Pathname
+    def server_crt_path: () -> Pathname
+    def server_key_path: () -> Pathname
+    def server_p12_path: () -> Pathname
+    def subdirectory: () -> String
+    def cot_ssl_port=: (String | Integer value) -> Integer
+    def cert_enrollment_port=: (String | Integer value) -> Integer
+    def certs_dir: () -> Pathname
+    def data_package_dir: () -> Pathname
+
+    private
+
+    def config_home: () -> Pathname
+    def data_home: () -> Pathname
+    def xdg: () -> XDG::Environment
+  end
+end

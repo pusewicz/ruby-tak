@@ -8,9 +8,14 @@ require "webrick/https"
 
 module RubyTAK
   class EnrollmentServer
-    LoggerIO = Struct.new(:logger) do
+    # IO-like adapter so WEBrick can log through RubyTAK's own logger.
+    class LoggerIO
+      def initialize(logger)
+        @logger = logger
+      end
+
       def <<(message)
-        logger.info(message.to_s.chomp)
+        @logger.info(message.to_s.chomp)
         self
       end
     end
@@ -24,7 +29,7 @@ module RubyTAK
 
     def start
       config = RubyTAK.configuration
-      @server = WEBrick::HTTPServer.new(
+      server = WEBrick::HTTPServer.new(
         Port: config.cert_enrollment_port,
         BindAddress: "0.0.0.0",
         SSLEnable: true,
@@ -33,12 +38,13 @@ module RubyTAK
         Logger: WEBrick::Log.new(LoggerIO.new(logger), WEBrick::Log::WARN),
         AccessLog: []
       )
-      @server.mount_proc("/Marti/api/tls/config") { |req, res| with_auth(req, res) { tls_config(req, res) } }
-      @server.mount_proc("/Marti/api/tls/signClient/v2") { |req, res| with_auth(req, res) { sign_client(req, res) } }
-      @server.mount_proc("/Marti/api/tls/profile/enrollment") { |req, res| with_auth(req, res) { res.status = 204 } }
-      @server.mount_proc("/") { |req, res| handle_unknown(req, res) }
+      server.mount_proc("/Marti/api/tls/config") { |req, res| with_auth(req, res) { tls_config(req, res) } }
+      server.mount_proc("/Marti/api/tls/signClient/v2") { |req, res| with_auth(req, res) { sign_client(req, res) } }
+      server.mount_proc("/Marti/api/tls/profile/enrollment") { |req, res| with_auth(req, res) { res.status = 204 } }
+      server.mount_proc("/") { |req, res| handle_unknown(req, res) }
       logger.info("Starting #{self.class.name} on port #{config.cert_enrollment_port}")
-      @server.start
+      @server = server
+      server.start
     end
 
     def shutdown
