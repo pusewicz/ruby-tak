@@ -100,9 +100,15 @@ module RubyTAK
     def handle_unknown(req, res)
       logger.info(
         "ENROLL: #{req.request_method} #{req.path}?#{req.query_string} " \
-        "headers=#{req.header.to_h} body=#{req.body.inspect}"
+        "headers=#{redact_authorization(req.header.to_h)} body=#{req.body.inspect}"
       )
       res.status = 404
+    end
+
+    def redact_authorization(headers)
+      return headers unless headers.key?("authorization")
+
+      headers.merge("authorization" => ["[REDACTED]"])
     end
   end
 end

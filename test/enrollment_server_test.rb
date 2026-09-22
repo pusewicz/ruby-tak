@@ -29,6 +29,15 @@ class EnrollmentServerTest < Minitest::Test
     end
   end
 
+  def test_unknown_path_redacts_the_authorization_header
+    with_enrollment_server do |_server, port|
+      get(port, "/nonexistent")
+
+      assert_match(/"authorization" => \["\[REDACTED\]"\]/, @log_output.string)
+      refute_includes @log_output.string, Base64.strict_encode64("piotr:password")
+    end
+  end
+
   def test_tls_config_returns_certificate_config_xml
     with_enrollment_server do |_server, port|
       response = get(port, "/Marti/api/tls/config")
@@ -49,6 +58,14 @@ class EnrollmentServerTest < Minitest::Test
   def test_authenticated_routes_reject_bad_credentials
     with_enrollment_server do |_server, port|
       response = get(port, "/Marti/api/tls/config", username: "piotr", password: "wrong")
+
+      assert_equal "401", response.code
+    end
+  end
+
+  def test_authenticated_routes_reject_missing_authorization_header
+    with_enrollment_server do |_server, port|
+      response = get(port, "/Marti/api/tls/config", username: nil, password: nil)
 
       assert_equal "401", response.code
     end
@@ -121,7 +138,7 @@ class EnrollmentServerTest < Minitest::Test
     uri = URI("https://127.0.0.1:#{port}#{path}")
     Net::HTTP.start(uri.host, uri.port, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
       request = Net::HTTP::Get.new(uri)
-      request.basic_auth(username, password)
+      request.basic_auth(username, password) if username
       http.request(request)
     end
   end

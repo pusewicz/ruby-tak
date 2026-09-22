@@ -7,6 +7,8 @@ module RubyTAK
     }.freeze
 
     def authenticate?(username, password)
+      return false if password.nil?
+
       CREDENTIALS[username] == password
     end
     module_function :authenticate?

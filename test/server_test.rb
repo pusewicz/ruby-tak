@@ -73,6 +73,8 @@ class ServerTest < Minitest::Test
     sleep 0.1
 
     assert_match(/EnrollmentServer failed to start: RuntimeError boom/, log_output.string)
+    failing_enrollment_server.verify
+    @mock_tcp_server.verify
   end
 
   def test_start_raises_when_certificate_files_are_missing
