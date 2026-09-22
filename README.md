@@ -35,16 +35,11 @@ won't regenerate it automatically — delete `ruby_tak-server.crt` and
 
 ## Connecting from iTAK
 
-Add RubyTAK in iTAK as a **TAK Server** (not a plain data feed), with:
+Add RubyTAK in iTAK as a **TAK Server**:
 
 - **Server address**: the host's IP or hostname
-- **Port**: `8446` (the certificate-enrollment port, not the `8089` CoT
-  streaming port — iTAK uses `8446` to trade a username/password for a
-  client certificate before it opens the streaming connection)
+- **Port**: `8089`
 - **Username** / **Password**: `piotr` / `password`
-
-iTAK enrolls automatically and then streams over `8089`; no manual
-certificate handling is needed beyond trusting the CA above.
 
 ## Development
 
