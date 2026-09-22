@@ -7,10 +7,6 @@ require "timeout"
 
 module RubyTAK
   class Server
-    USERS = {
-      "piotr" => "password"
-    }.freeze
-
     MAX_CONNECTIONS = 200
     CONNECTION_TIMEOUT = 300 # seconds
     HANDSHAKE_TIMEOUT = 10 # seconds
@@ -21,13 +17,14 @@ module RubyTAK
       new.start
     end
 
-    def initialize(logger: RubyTAK.logger)
+    def initialize(logger: RubyTAK.logger, enrollment_server: EnrollmentServer.new(logger: logger))
       @port = RubyTAK.configuration.cot_ssl_port
       @logger = logger
       @clients = ::Set.new
       @clients_mutex = Mutex.new
       @in_flight_count = 0
       @in_flight_mutex = Mutex.new
+      @enrollment_server = enrollment_server
       logger.info("Starting #{self.class.name} v#{RubyTAK::VERSION} on port #{@port}")
       @server = TCPServer.new("0.0.0.0", @port)
     end
@@ -37,6 +34,8 @@ module RubyTAK
     def start
       ssl_context
       start_connection_watchdog
+      enrollment_thread = start_enrollment_server
+      enrollment_thread.report_on_exception = false
       loop do
         socket = @server.accept
         accept_connection(socket)
@@ -47,10 +46,19 @@ module RubyTAK
 
     private
 
+    def start_enrollment_server
+      Thread.start do
+        @enrollment_server.start
+      rescue StandardError => e
+        logger.error("EnrollmentServer failed to start: #{e.class} #{e.message}")
+      end
+    end
+
     def shutdown
       logger.info("Shutting down...")
       clients_to_close = @clients_mutex.synchronize { @clients.to_a }
       clients_to_close.each { |client| handle_disconnect(client) }
+      @enrollment_server.shutdown
       @server.close
     end
 
@@ -236,7 +244,7 @@ module RubyTAK
 
       username, password, uid = message.cot.attributes.values_at(:username, :password, :uid)
 
-      if USERS[username] == password
+      if Users.authenticate?(username, password)
         logger.debug("AUTH: #{client.uid} -> #{username}@#{uid}")
         client.uid = uid
         client.username = username
