@@ -97,7 +97,9 @@ class ServerTest < Minitest::Test
     shutdown_called = false
     server.stub(:start_connection_watchdog, nil) do
       server.stub(:shutdown, -> { shutdown_called = true }) do
-        server.start
+        server.stub(:ssl_context, OpenSSL::SSL::SSLContext.new) do
+          server.start
+        end
       end
     end
 
