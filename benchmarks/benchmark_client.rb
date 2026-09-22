@@ -40,7 +40,7 @@ class BenchmarkClient
     @reader_thread&.join(5) # Wait up to 5 seconds for reader thread to exit
   end
 
-  def send_auth(username: "piotr", password: "password")
+  def send_auth(username: "rubytak", password: "password")
     xml = <<~XML.strip
       <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
       <auth><cot username="#{username}" password="#{password}" uid="#{@uid}"/></auth>

@@ -39,7 +39,7 @@ Add RubyTAK in iTAK as a **TAK Server**:
 
 - **Server address**: the host's IP or hostname
 - **Port**: `8089`
-- **Username** / **Password**: `piotr` / `password`
+- **Username** / **Password**: `rubytak` / `password`
 
 ## Development
 

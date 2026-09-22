@@ -3,7 +3,7 @@
 module RubyTAK
   module Users
     CREDENTIALS = {
-      "piotr" => "password"
+      "rubytak" => "password"
     }.freeze
 
     def authenticate?(username, password)

@@ -34,7 +34,7 @@ class EnrollmentServerTest < Minitest::Test
       get(port, "/nonexistent")
 
       assert_match(/"authorization" => \["\[REDACTED\]"\]/, @log_output.string)
-      refute_includes @log_output.string, Base64.strict_encode64("piotr:password")
+      refute_includes @log_output.string, Base64.strict_encode64("rubytak:password")
     end
   end
 
@@ -57,7 +57,7 @@ class EnrollmentServerTest < Minitest::Test
 
   def test_authenticated_routes_reject_bad_credentials
     with_enrollment_server do |_server, port|
-      response = get(port, "/Marti/api/tls/config", username: "piotr", password: "wrong")
+      response = get(port, "/Marti/api/tls/config", username: "rubytak", password: "wrong")
 
       assert_equal "401", response.code
     end
@@ -134,7 +134,7 @@ class EnrollmentServerTest < Minitest::Test
     csr
   end
 
-  def get(port, path, username: "piotr", password: "password")
+  def get(port, path, username: "rubytak", password: "password")
     uri = URI("https://127.0.0.1:#{port}#{path}")
     Net::HTTP.start(uri.host, uri.port, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
       request = Net::HTTP::Get.new(uri)
@@ -147,7 +147,7 @@ class EnrollmentServerTest < Minitest::Test
     uri = URI("https://127.0.0.1:#{port}#{path}")
     Net::HTTP.start(uri.host, uri.port, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
       request = Net::HTTP::Post.new(uri)
-      request.basic_auth("piotr", "password")
+      request.basic_auth("rubytak", "password")
       request["Accept"] = accept if accept
       request.body = body
       http.request(request)

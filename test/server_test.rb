@@ -204,13 +204,13 @@ class ServerTest < Minitest::Test
     mock_socket.expect :peeraddr, ["AF_INET", 12_345, "localhost", "127.0.0.1"]
 
     client = RubyTAK::Client.new(mock_socket)
-    auth_xml = '<auth><cot username="piotr" password="password" uid="TEST-UID-123"/></auth>'
+    auth_xml = '<auth><cot username="rubytak" password="password" uid="TEST-UID-123"/></auth>'
     message = RubyTAK::Message.new(auth_xml)
 
     server.send(:handle_auth, client, message)
 
     assert_equal "TEST-UID-123", client.uid
-    assert_equal "piotr", client.username
+    assert_equal "rubytak", client.username
   end
 
   def test_handle_auth_failure
@@ -225,7 +225,7 @@ class ServerTest < Minitest::Test
       server.instance_variable_get(:@clients) << client
     end
 
-    auth_xml = '<auth><cot username="piotr" password="wrongpassword" uid="TEST-UID-123"/></auth>'
+    auth_xml = '<auth><cot username="rubytak" password="wrongpassword" uid="TEST-UID-123"/></auth>'
     message = RubyTAK::Message.new(auth_xml)
 
     server.send(:handle_auth, client, message)
@@ -659,12 +659,12 @@ class ServerTest < Minitest::Test
     mock_socket.expect :peeraddr, ["AF_INET", 12_345, "localhost", "127.0.0.1"]
 
     client = RubyTAK::Client.new(mock_socket)
-    auth_xml = '<auth><cot username="piotr" password="password" uid="AUTH-UID-456"/></auth>'
+    auth_xml = '<auth><cot username="rubytak" password="password" uid="AUTH-UID-456"/></auth>'
 
     server.send(:handle_data, client, auth_xml)
 
     assert_equal "AUTH-UID-456", client.uid
-    assert_equal "piotr", client.username
+    assert_equal "rubytak", client.username
   end
 
   def test_handle_data_with_unknown_message_type
@@ -868,7 +868,7 @@ class ServerTest < Minitest::Test
       ssl_socket = OpenSSL::SSL::SSLSocket.new(tcp_socket, client_ssl_context)
       ssl_socket.connect
 
-      ssl_socket.write('<auth><cot username="piotr" password="password" uid="TLS-TEST-UID"/></auth>')
+      ssl_socket.write('<auth><cot username="rubytak" password="password" uid="TLS-TEST-UID"/></auth>')
       sleep 0.2
 
       clients = server.instance_variable_get(:@clients_mutex).synchronize do
